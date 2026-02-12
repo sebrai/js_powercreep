@@ -23,7 +23,6 @@ document.addEventListener("keydown", (e) => {
 
 })
 document.addEventListener("keyup", (e) => {
-    if (player.keys[e.key] == undefined || player.keys[e.key] == null) return;
     if (!player.keys[e.key]) return;
     player.keys[e.key] = false
 })
