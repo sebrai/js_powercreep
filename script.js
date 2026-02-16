@@ -1,61 +1,123 @@
 console.log("hello world");
 const c = document.querySelector("canvas")
 const start_btn = document.getElementById("start")
-const ctx = c.getContext("2d")
-const size = [1100,550]
+const c_picker = document.getElementById("color")
+const score_display = document.getElementById("score")
 
+const ctx = c.getContext("2d")
+const size = [1100, 550]
+const side_death_blocks = []
 let score = 0
-c.width  =size[0]
+let timer = 0
+let movement_speed = 10
+c.width = size[0]
 c.height = size[1]
 let player = {
     x: 100,
     y: 100,
-    speed: 4,
+    speed: movement_speed,
     radius: 10,
-    color: "#f5473b",
-    keys: {
+    color: "#3b66f5",
+    mkeys: {
         "w": false,
         "a": false,
         "s": false,
         "d": false,
     }
 }
+c_picker.value = player.color
+class deathblock {
+    constructor() {
+        this.width = 100
+        this.height = 100
+        this.x = 0
+        this.y = 0
+        this.xvel = 0
+        this.yvel = 0
+        side_death_blocks.push(this)
+    }
+}
 document.addEventListener("keydown", (e) => {
-    if (player.keys[e.key] == undefined || player.keys[e.key] == null) return;
-    if (player.keys[e.key]) return;
+
+    if (player.mkeys[e.key] == undefined || player.mkeys[e.key] == null) return;
+    if (player.mkeys[e.key]) return;
     console.log(e.key + " was pressed");
-    player.keys[e.key] = true
+    player.mkeys[e.key] = true
 
 
 
 })
 document.addEventListener("keyup", (e) => {
-    if (!player.keys[e.key]) return;
-    player.keys[e.key] = false
+    if (!player.mkeys[e.key]) return;
+    player.mkeys[e.key] = false
 })
-function  run_frame() {
-    ctx.clearRect(0, 0, size[0], size[1])
-    if (player.keys.w) {
+
+c_picker.addEventListener("change", () => {
+    player.color = c_picker.value
+})
+
+function run_frame() {
+    ctx.clearRect(0, 0, size[0], size[1]) // clear
+
+
+    const dir_count = Object.values(player.mkeys).filter(value => value === true).length // amount of movemen
+
+
+
+    if (dir_count === 2) { // make you move the correct speed in diagonalsd
+        player.speed = movement_speed / Math.sqrt(2)
+    } else {
+        player.speed = movement_speed
+    }
+
+
+
+
+    if (player.mkeys.w) { // add speed basen on keybinds
         player.y -= player.speed
     }
-    if (player.keys.s){
-         player.y += player.speed
+    if (player.mkeys.s) {
+        player.y += player.speed
     }
-     if (player.keys.a) {
+    if (player.mkeys.a) {
         player.x -= player.speed
     }
-    if (player.keys.d){
-         player.x += player.speed
+    if (player.mkeys.d) {
+        player.x += player.speed
     }
-     ctx.beginPath()
-     ctx.arc(player.x,player.y,player.radius,0,2*Math.PI)
-     ctx.stroke()
-     score += 1
-     requestAnimationFrame(run_frame)
+
+
+    if (player.x - player.radius < 0) { // check for wal collitions
+        player.x = player.radius
+    } else if (player.x + player.radius > size[0]) {
+        player.x = size[0] - player.radius
+    }
+    if (player.y - player.radius < 0) {
+        player.y = player.radius
+    } else if (player.y + player.radius > size[1]) {
+        player.y = size[1] - player.radius
+    }
+
+
+
+
+    ctx.fillStyle = player.color
+    ctx.beginPath()
+    ctx.arc(player.x, player.y, player.radius, 0, 2 * Math.PI)
+    ctx.stroke()
+    ctx.fill() // paint in player
+
+
+
+
+    timer += 1
+    score = timer
+    score_display.innerText = "score: "+score
+    requestAnimationFrame(run_frame)
 }
 async function start_game() {
     run_frame()
 }
-start_btn.addEventListener("click",()=>{
+start_btn.addEventListener("click", () => {
     start_game()
 })
