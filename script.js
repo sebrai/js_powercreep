@@ -13,10 +13,11 @@ let movement_speed = 15
 c.width = size[0]
 c.height = size[1]
 
-let game ={
- side_death_blocks: [],
- started: false,
+let game = {
+    side_death_blocks: [],
+    started: false,
 }
+
 
 let player = {
     x: 100,
@@ -36,13 +37,39 @@ let player = {
         "d": false,
     },
     special: function () {
-        if (game.started) {
-        console.log("no special");      
+        if (game.started && this.sp_coldown <= 0) {
+            this.sp_func()
         }
-      
-        
-    }
+
+
+    },
+    sp_func: dash,
+    sp_coldown: 0
 }
+
+function dash() {
+    const dashLength = 40;
+    const speed = Math.sqrt(player.vx ** 2 + player.vy ** 2);
+
+    if (speed === 0) return; // prevent division by zero
+
+    player.x += (player.vx / speed) * dashLength;
+    player.y += (player.vy / speed) * dashLength;
+    player.sp_coldown = 2000
+    let cooldown = setInterval(() => {
+        player.sp_coldown -= 10 // 10 insted if 1  because its to fast for the game to handle
+        // console.count("used")
+        if (player.sp_coldown <= 0) {
+            console.log("sp coldown ended");
+            
+            clearInterval(cooldown)
+        }
+    }, 10);
+}
+
+
+
+
 c_picker.value = player.color
 class deathblock {
     constructor() {
@@ -56,11 +83,11 @@ class deathblock {
     }
 }
 document.addEventListener("keydown", (e) => {
-     if (e.key === " "){
+    if (e.key === " ") {
         // console.log("special used")
         player.special()
         return
-     }
+    }
     if (player.mkeys[e.key] == undefined || player.mkeys[e.key] == null) return;
     if (player.mkeys[e.key]) return;
     console.log(e.key + " was pressed");
@@ -87,9 +114,9 @@ function run_frame() {
 
 
     if (dir_count === 2) { // make you move the correct speed in diagonalsd
-        player.maxSpeedspeed = movement_speed / Math.sqrt(2)
+        player.maxSpeed = movement_speed / Math.sqrt(2)
     } else {
-        player.maxSpeedspeed = movement_speed
+        player.maxSpeed = movement_speed
     }
 
 
@@ -126,8 +153,8 @@ function run_frame() {
     player.vx *= player.friction
     player.vy *= player.friction
 
-
-
+     if (Math.abs(player.vx) < 0.001)player.vx = 0
+     if (Math.abs(player.vy) <0.001)player.vy = 0
 
     if (player.x - player.radius < 0) { // check for wal collitions
         player.x = player.radius
@@ -162,5 +189,6 @@ async function start_game() {
     run_frame()
 }
 start_btn.addEventListener("click", () => {
+    start_btn.disabled = true
     start_game()
 })
