@@ -30,8 +30,8 @@ c.height = size[1]
 let game = {
     death_blocks: [],
     started: false,
-    lost:false,
-    paused:false,
+    lost: false,
+    paused: false,
 }
 
 
@@ -207,9 +207,9 @@ class deathblock {
             this.despawn()
         }
         this.colition_check = function () {
-            return !(this.x > player.x + player.radius*2 ||
+            return !(this.x > player.x + player.radius * 2 ||
                 this.x + this.width < player.x ||
-                this.y > player.y + player.radius*2 ||
+                this.y > player.y + player.radius * 2 ||
                 this.y + this.height < player.y)
         }
         this.start()
@@ -237,7 +237,29 @@ document.addEventListener("keyup", (e) => {
 c_picker.addEventListener("change", () => {
     player.color = c_picker.value
 })
+function add_smile() {
+    // --- Draw the eyes ---
+    ctx.fillStyle = "black";
 
+    // Left eye
+    ctx.beginPath();
+    ctx.arc(player.x -4 , player.y-2,player.radius/8, 0, Math.PI * 2, true); // Center (110, 120), radius 15
+    ctx.fill();
+    ctx.closePath();
+
+    // Right eye
+    ctx.beginPath();
+    ctx.arc(player.x+4, player.y-2, player.radius/8, 0, Math.PI * 2, true); // Center (190, 120), radius 15
+    ctx.fill();
+    ctx.closePath();
+
+    // --- Draw the mouth ---
+    ctx.beginPath();
+    ctx.arc(player.x, player.y +3, player.radius/4, 0, Math.PI, false); // Center (150, 175), radius 60, false for counter-clockwise arc (a smile)
+    ctx.lineWidth = 5;
+    ctx.stroke();
+    ctx.closePath();
+}
 function run_frame() {
     ctx.clearRect(0, 0, size[0], size[1]) // clear
 
@@ -309,6 +331,8 @@ function run_frame() {
     ctx.stroke()
     ctx.fill() // paint in player
 
+    add_smile()
+
     let death_blocks_copy = game.death_blocks // copy to make sure order isnt broken if a block despwans
     for (let index = 0; index < death_blocks_copy.length; index++) { // movement and drawing death blocks
         const element = death_blocks_copy[index];
@@ -317,7 +341,7 @@ function run_frame() {
         ctx.fillStyle = element.color
         ctx.fillRect(element.x, element.y, element.width, element.height)
         if (element.colition_check()) game.lost = true
-        
+
         element.try_despawn() // despwns the enemy when its of the screen
     }
     if (timer % 75 === 0 && timer != 0) {
@@ -327,7 +351,7 @@ function run_frame() {
     timer += 1
     score = timer
     score_display.innerText = "score: " + score
-    if (!game.lost)requestAnimationFrame(run_frame)
+    if (!game.lost) requestAnimationFrame(run_frame)
 }
 async function start_game() {
     game.started = true
