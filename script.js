@@ -9,7 +9,16 @@ const size = [1100, 550]
 let score = 0
 let timer = 0
 let movement_speed = 15
-const basic_dir = ["left","left", "up,left", "up","up", "up,right", "right","right", "down,right", "down","down", "down,left"]
+const basic_dir = [
+    "left", "left",
+    "up,left",
+    "up", "up",
+    "up,right",
+    "right", "right",
+    "down,right",
+    "down", "down",
+    "down,left"
+]
 function rng(max = 100, min = 0) {
     let r = Math.floor(Math.random() * (max + 1 - min)) + min
     return r
@@ -21,6 +30,8 @@ c.height = size[1]
 let game = {
     death_blocks: [],
     started: false,
+    lost:false,
+    paused:false,
 }
 
 
@@ -96,8 +107,8 @@ class deathblock {
         this.setmovement = function () {
             this.moving = true
             if (this.dir.length > 6) {
-                this.speed = this.base_speed /Math.sqrt(2)
-            }else {
+                this.speed = this.base_speed / Math.sqrt(2)
+            } else {
                 this.speed = this.base_speed
             }
             this.vx = this.dir.includes("left") ? -this.speed : this.dir.includes("right") ? this.speed : 0
@@ -105,58 +116,79 @@ class deathblock {
         }
         this.extra_logik = x_logik
         this.setposition = function () {
-            let index = rng(1, 0)
-            switch (this.dir) {
+            let dirs = this.dir.split(",");
+            let chosenDir = dirs.length > 1
+                ? dirs[Math.floor(Math.random() * 2)]
+                : dirs[0];
+
+            let halfW = size[0] / 2;
+            let halfH = size[1] / 2;
+
+            switch (chosenDir) {
+
                 case "up":
-                    this.x = rng(size[0] - this.width, 0)
-                    this.y = size[1]
-                    break;
-                case "up,right":
-                    if (index) {
-                        this.x = rng(size[0] - size[0] / 4 - this.width, 0)
-                        this.y = size[1]
+                    // bottom edge
+                    this.y = size[1] - this.height;
+
+                    if (dirs.length > 1) {
+                        // diagonal: restrict X so it travels across screen
+                        if (dirs.includes("left")) {
+                            this.x = rng(size[0] - this.width, halfW);
+                        } else if (dirs.includes("right")) {
+                            this.x = rng(halfW - this.width, 0);
+                        }
                     } else {
-                        this.y = rng(size[1] - size[1] / 4 + this.height, 0)
-                    }
-                    break;
-                case "right":
-                    this.y = rng(size[1] - this.height, 0)
-                    break;
-                case "down,right":
-                    if (index) {
-                        this.x = rng(size[0] - size[0] / 4 + this.width, 0)
-                    } else {
-                        this.y = rng(size[1] - size[1] / 4 + this.height, 0)
-                    }
-                    break;
-                case "down":
-                    this.x = rng(size[0] - this.width, 0)
-                    break;
-                case "down,left":
-                    if (index) {
-                        this.x = rng(size[0] - size[0] / 4 + this.width, 0)
-                    } else {
-                        this.y = rng(size[1] - size[1] / 4 - this.height, 0)
-                        this.x = size[0]
-                    }
-                    break;
-                case "left":
-                    this.y = rng(size[1] - this.height, 0)
-                    this.x = size[0]
-                    break;
-                case "up,left":
-                    if (index) {
-                        this.x = rng(size[0] - size[1] / 4 - this.width, 0)
-                        this.y = size[1]
-                    } else {
-                        this.y = rng(size[1] - size[1] / 4 - this.height, 0)
-                        this.x = size[0]
+                        this.x = rng(size[0] - this.width, 0);
                     }
                     break;
 
-                default:
+                case "down":
+                    // top edge
+                    this.y = 0;
+
+                    if (dirs.length > 1) {
+                        if (dirs.includes("left")) {
+                            this.x = rng(size[0] - this.width, halfW);
+                        } else if (dirs.includes("right")) {
+                            this.x = rng(halfW - this.width, 0);
+                        }
+                    } else {
+                        this.x = rng(size[0] - this.width, 0);
+                    }
+                    break;
+
+                case "left":
+                    // right edge
+                    this.x = size[0] - this.width;
+
+                    if (dirs.length > 1) {
+                        if (dirs.includes("up")) {
+                            this.y = rng(size[1] - this.height, halfH);
+                        } else if (dirs.includes("down")) {
+                            this.y = rng(halfH - this.height, 0);
+                        }
+                    } else {
+                        this.y = rng(size[1] - this.height, 0);
+                    }
+                    break;
+
+                case "right":
+                    // left edge
+                    this.x = 0;
+
+                    if (dirs.length > 1) {
+                        if (dirs.includes("up")) {
+                            this.y = rng(size[1] - this.height, halfH);
+                        } else if (dirs.includes("down")) {
+                            this.y = rng(halfH - this.height, 0);
+                        }
+                    } else {
+                        this.y = rng(size[1] - this.height, 0);
+                    }
                     break;
             }
+
+
         }
         this.start = function () {
             game.death_blocks.push(this)
@@ -173,6 +205,12 @@ class deathblock {
         this.try_despawn = function () {
             if (!this.check_despawn()) return;
             this.despawn()
+        }
+        this.colition_check = function () {
+            return !(this.x > player.x + player.radius*2 ||
+                this.x + this.width < player.x ||
+                this.y > player.y + player.radius*2 ||
+                this.y + this.height < player.y)
         }
         this.start()
     }
@@ -278,16 +316,18 @@ function run_frame() {
         element.extra_logik()
         ctx.fillStyle = element.color
         ctx.fillRect(element.x, element.y, element.width, element.height)
-        element.try_despawn()
+        if (element.colition_check()) game.lost = true
+        
+        element.try_despawn() // despwns the enemy when its of the screen
     }
     if (timer % 75 === 0 && timer != 0) {
-        new deathblock(rng(150, 100), rng(150, 100), rng(18, 12), basic_dir[rng(7, 0)])
+        new deathblock(rng(150, 100), rng(150, 100), rng(18, 12), basic_dir[rng(basic_dir.length - 1, 0)])
     }
 
     timer += 1
     score = timer
     score_display.innerText = "score: " + score
-    requestAnimationFrame(run_frame)
+    if (!game.lost)requestAnimationFrame(run_frame)
 }
 async function start_game() {
     game.started = true
