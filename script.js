@@ -29,6 +29,7 @@ c.height = size[1]
 
 let game = {
     death_blocks: [],
+    bullets: [],
     started: false,
     lost: false,
     paused: false,
@@ -55,11 +56,21 @@ let player = {
     special: function () {
         if (game.started && this.sp_coldown <= 0) {
             this.sp_func()
+            player.sp_coldown = 2000
+            let cooldown = setInterval(() => {
+                player.sp_coldown -= 10 // 10 insted if 1  because its to fast for the game to handle
+                // console.count("used")
+                if (player.sp_coldown <= 0) {
+                    console.log("sp coldown ended");
+
+                    clearInterval(cooldown)
+                }
+            }, 10);
         }
 
 
     },
-    sp_func: dash,
+    sp_func: shoot_bullet,
     sp_coldown: 0
 }
 
@@ -71,18 +82,11 @@ function dash() {
 
     player.x += (player.vx / speed) * dashLength;
     player.y += (player.vy / speed) * dashLength;
-    player.sp_coldown = 2000
-    let cooldown = setInterval(() => {
-        player.sp_coldown -= 10 // 10 insted if 1  because its to fast for the game to handle
-        // console.count("used")
-        if (player.sp_coldown <= 0) {
-            console.log("sp coldown ended");
 
-            clearInterval(cooldown)
-        }
-    }, 10);
 }
-
+function shoot_bullet() {
+    new bullets(20 + rng(20, 0))
+}
 
 
 
@@ -215,6 +219,68 @@ class deathblock {
         this.start()
     }
 }
+class bullets {
+    constructor(speed, color = "#4fab88", x_logik = () => { }) {
+        this.radius = 5
+        this.x = 0
+        this.y = 0
+        this.vx = 0
+        this.vy = 0
+        this.base_speed = speed
+        this.speed = speed
+
+        this.moving = false
+        this.color = color
+        this.move = function () {
+            this.x += this.vx
+            this.y += this.vy
+        }
+        this.setmovement = function () {
+            this.moving = true
+            this.vx = this.speed * player.vx / player.maxSpeed
+            this.vy = this.speed * player.vy / player.maxSpeed
+        }
+        this.extra_logik = x_logik
+        this.setposition = function () {
+            this.x = player.x + (player.vx / player.maxSpeed) * player.radius
+            this.y = player.y + (player.vy / player.maxSpeed) * player.radius
+        }
+        this.start = function () {
+            game.bullets.push(this)
+            this.setposition()
+            this.setmovement()
+        }
+        this.check_despawn = function () {
+            return this.x > size[0] + 1 || this.y > size[1] + 1 || this.y < -(this.height + 1) || this.x < -(this.width + 1)
+        }
+        this.despawn = function () {
+            const index = game.death_blocks.indexOf(this)
+            game.death_blocks.splice(index, 1)
+        }
+        this.try_despawn = function () {
+            if (!this.check_despawn()) return;
+            this.despawn()
+        }
+        this.colition_check = function () {
+            let colition = { colided: false, item: null }
+            for (let index = 0; index < game.death_blocks.length; index++) {
+                const element = game.death_blocks[index];
+                if (!colition.colided) {
+                    colition.colided = !(element.x > this.x + this.radius * 2 ||
+                        element.x + element.width < this.x ||
+                        element.y > this.y + this.radius * 2 ||
+                        element.y + element.height < this.y)
+                    if (colition.colided) colition.item = element
+                }
+
+
+            }
+            return colition
+        }
+        this.start()
+
+    }
+}
 document.addEventListener("keydown", (e) => {
     if (e.key === " ") {
         // console.log("special used")
@@ -243,19 +309,19 @@ function add_smile() {
 
     // Left eye
     ctx.beginPath();
-    ctx.arc(player.x -4 , player.y-2,player.radius/8, 0, Math.PI * 2, true); // Center (110, 120), radius 15
+    ctx.arc(player.x - 4, player.y - 2, player.radius / 8, 0, Math.PI * 2, true); // Center (110, 120), radius 15
     ctx.fill();
     ctx.closePath();
 
     // Right eye
     ctx.beginPath();
-    ctx.arc(player.x+4, player.y-2, player.radius/8, 0, Math.PI * 2, true); // Center (190, 120), radius 15
+    ctx.arc(player.x + 4, player.y - 2, player.radius / 8, 0, Math.PI * 2, true); // Center (190, 120), radius 15
     ctx.fill();
     ctx.closePath();
 
     // --- Draw the mouth ---
     ctx.beginPath();
-    ctx.arc(player.x, player.y +3, player.radius/4, 0, Math.PI, false); // Center (150, 175), radius 60, false for counter-clockwise arc (a smile)
+    ctx.arc(player.x, player.y + 3, player.radius / 4, 0, Math.PI, false); // Center (150, 175), radius 60, false for counter-clockwise arc (a smile)
     ctx.lineWidth = 5;
     ctx.stroke();
     ctx.closePath();
@@ -332,6 +398,24 @@ function run_frame() {
     ctx.fill() // paint in player
 
     add_smile()
+
+    let bullets_copy = game.bullets
+    for (let index = 0; index < bullets_copy.length; index++) {
+        const element = bullets_copy[index];
+        element.move()
+        element.extra_logik()
+        ctx.fillStyle = element.color
+        ctx.beginPath()
+        ctx.arc(element.x, element.y, element.radius, 0, 2 * Math.PI)
+        ctx.stroke()
+        ctx.fill()
+        let colition = element.colition_check()
+        if (colition.colided) {
+            element.despawn()
+            colition.item.despawn()
+        }
+    }
+
 
     let death_blocks_copy = game.death_blocks // copy to make sure order isnt broken if a block despwans
     for (let index = 0; index < death_blocks_copy.length; index++) { // movement and drawing death blocks
