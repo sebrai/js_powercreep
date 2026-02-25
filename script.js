@@ -53,6 +53,14 @@ let player = {
         "s": false,
         "d": false,
     },
+    getspeed: function () {
+        return Math.sqrt(this.vx**2+this.vy**2)
+    },
+    getangle:function () {
+        let radians = Math.atan2(vy, vx);
+        let degrees = radians *(180/Math.PI)
+        return {radians:radians,degrees:degrees}
+    },
     special: function () {
         if (game.started && this.sp_coldown <= 0) {
             this.sp_func()
@@ -237,13 +245,13 @@ class bullets {
         }
         this.setmovement = function () {
             this.moving = true
-            this.vx = this.speed * player.vx / player.maxSpeed
-            this.vy = this.speed * player.vy / player.maxSpeed
+            this.vx = this.speed * player.vx / player.getspeed()
+            this.vy = this.speed * player.vy / player.getspeed()
         }
         this.extra_logik = x_logik
         this.setposition = function () {
-            this.x = player.x + (player.vx / player.maxSpeed) * player.radius
-            this.y = player.y + (player.vy / player.maxSpeed) * player.radius
+            this.x = player.x + (player.vx / player.getspeed()) * player.radius
+            this.y = player.y + (player.vy / player.getspeed()) * player.radius
         }
         this.start = function () {
             game.bullets.push(this)
