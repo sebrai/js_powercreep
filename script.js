@@ -30,6 +30,7 @@ c.height = size[1]
 let game = {
     death_blocks: [],
     bullets: [],
+    warnings: [],
     started: false,
     lost: false,
     paused: false,
@@ -54,12 +55,12 @@ let player = {
         "d": false,
     },
     getspeed: function () {
-        return Math.sqrt(this.vx**2+this.vy**2)
+        return Math.sqrt(this.vx ** 2 + this.vy ** 2)
     },
-    getangle:function () {
+    getangle: function () {
         let radians = Math.atan2(vy, vx);
-        let degrees = radians *(180/Math.PI)
-        return {radians:radians,degrees:degrees}
+        let degrees = radians * (180 / Math.PI)
+        return { radians: radians, degrees: degrees }
     },
     special: function () {
         if (game.started && this.sp_coldown <= 0) {
@@ -112,6 +113,7 @@ class deathblock {
         this.dir = direction
         this.moving = false
         this.color = color
+        this.warning_pos = { x: 0, y: 0 }
         this.move = function () {
             this.x += this.vx
             this.y += this.vy
@@ -133,21 +135,24 @@ class deathblock {
                 ? dirs[Math.floor(Math.random() * 2)]
                 : dirs[0];
 
-            let halfW = size[0] / 2;
-            let halfH = size[1] / 2;
+            let diagW = size[0] / 4;
+            let diagH = size[1] / 4;
 
             switch (chosenDir) {
 
                 case "up":
                     // bottom edge
                     this.y = size[1] - this.height;
+                    this.warning_pos.y = this.y - 10
 
                     if (dirs.length > 1) {
                         // diagonal: restrict X so it travels across screen
                         if (dirs.includes("left")) {
-                            this.x = rng(size[0] - this.width, halfW);
+                            this.x = rng(size[0] - this.width, diagW);
+                            this.warning_pos.x = this.x - 10
                         } else if (dirs.includes("right")) {
-                            this.x = rng(halfW - this.width, 0);
+                            this.x = rng(diagW - this.width, 0);
+                            this.warning_pos.x = this.x + 10
                         }
                     } else {
                         this.x = rng(size[0] - this.width, 0);
@@ -157,12 +162,14 @@ class deathblock {
                 case "down":
                     // top edge
                     this.y = 0;
-
+                    this.warning_pos.y = this.y + 10
                     if (dirs.length > 1) {
                         if (dirs.includes("left")) {
-                            this.x = rng(size[0] - this.width, halfW);
+                            this.x = rng(size[0] - this.width, diagW);
+                            this.warning_pos.x = this.x - 10
                         } else if (dirs.includes("right")) {
-                            this.x = rng(halfW - this.width, 0);
+                            this.x = rng(diagW - this.width, 0);
+                            this.warning_pos.x = this.x + 10
                         }
                     } else {
                         this.x = rng(size[0] - this.width, 0);
@@ -172,12 +179,14 @@ class deathblock {
                 case "left":
                     // right edge
                     this.x = size[0] - this.width;
-
+                    this.warning_pos.x = this.x - 10
                     if (dirs.length > 1) {
                         if (dirs.includes("up")) {
-                            this.y = rng(size[1] - this.height, halfH);
+                            this.y = rng(size[1] - this.height, diagH);
+                            this.warning_pos.y = this.y - 10
                         } else if (dirs.includes("down")) {
-                            this.y = rng(halfH - this.height, 0);
+                            this.y = rng(diagH - this.height, 0);
+                            this.warning_pos.y = this.y + 10
                         }
                     } else {
                         this.y = rng(size[1] - this.height, 0);
@@ -187,24 +196,44 @@ class deathblock {
                 case "right":
                     // left edge
                     this.x = 0;
-
+                    this.warning_pos.x = this.x + 10
                     if (dirs.length > 1) {
                         if (dirs.includes("up")) {
-                            this.y = rng(size[1] - this.height, halfH);
+                            this.y = rng(size[1] - this.height, diagH);
+                            this.warning_pos.y = this.y - 10
                         } else if (dirs.includes("down")) {
-                            this.y = rng(halfH - this.height, 0);
+                            this.y = rng(diagH - this.height, 0);
+                            this.warning_pos.y = this.y + 10
                         }
                     } else {
                         this.y = rng(size[1] - this.height, 0);
                     }
                     break;
             }
+            const offset = 15;
+
+            if (this.dir.includes("up")) {
+                this.warning_pos.x = this.x + this.width / 2;
+                this.warning_pos.y = size[1] - offset;
+            }
+            else if (this.dir.includes("down")) {
+                this.warning_pos.x = this.x + this.width / 2;
+                this.warning_pos.y = offset;
+            }
+            else if (this.dir.includes("left")) {
+                this.warning_pos.x = size[0] - offset;
+                this.warning_pos.y = this.y + this.height / 2;
+            }
+            else if (this.dir.includes("right")) {
+                this.warning_pos.x = offset;
+                this.warning_pos.y = this.y + this.height / 2;
+            }
 
 
         }
         this.start = function () {
             game.death_blocks.push(this)
-            this.setposition()
+            // this.setposition()
             this.setmovement()
         }
         this.check_despawn = function () {
@@ -224,7 +253,8 @@ class deathblock {
                 this.y > player.y + player.radius * 2 ||
                 this.y + this.height < player.y)
         }
-        this.start()
+        // this.start()
+        this.setposition()
     }
 }
 class bullets {
@@ -334,6 +364,42 @@ function add_smile() {
     ctx.stroke();
     ctx.closePath();
 }
+
+class warnings {
+    constructor(x, y, h = 15, bob = h / 2, bob_speed = 5, color = "#ff0000", font = "Arial") {
+        this.x = x
+        this.y = y
+        this.color = color
+        this.height = h
+        this.bobheight = bob
+        this.frame = 0
+        this.font = font
+        this.bob_speed = bob_speed
+        this.get_bob = function () {
+            let radian_height = this.frame * this.bob_speed * (Math.PI / 180)
+            return Math.sin(radian_height) * this.bobheight
+        }
+        this.draw = function () {
+            ctx.font = this.height + "px " + this.font
+            ctx.fillStyle = this.color
+            ctx.fillText("!!!", this.x, this.y + this.get_bob())
+        }
+        this.runframe = function () {
+            console.log(this);
+
+            this.draw()
+            this.frame++
+        }
+        this.start = function () {
+            game.warnings.push(this)
+        }
+        this.stop = function () {
+            const index = game.warnings.indexOf(this)
+            game.warnings.splice(index, 1)
+        }
+    }
+}
+
 function run_frame() {
     ctx.clearRect(0, 0, size[0], size[1]) // clear
 
@@ -421,6 +487,7 @@ function run_frame() {
         if (colition.colided) {
             element.despawn()
             colition.item.despawn()
+            score+=50
         }
     }
 
@@ -434,14 +501,28 @@ function run_frame() {
         ctx.fillRect(element.x, element.y, element.width, element.height)
         if (element.colition_check()) game.lost = true
 
-        element.try_despawn() // despwns the enemy when its of the screen
+        element.try_despawn() // despwns the enemy if its of the screen
+    }
+    for (let index = 0; index < game.warnings.length; index++) { // draws warnings
+        const element = game.warnings[index];
+        element.runframe()
+        // console.log(element);
+
     }
     if (timer % 75 === 0 && timer != 0) {
-        new deathblock(rng(150, 100), rng(150, 100), rng(18, 12), basic_dir[rng(basic_dir.length - 1, 0)])
+        let blockdir = basic_dir[rng(basic_dir.length - 1, 0)]
+        let d = new deathblock(rng(150, 100), rng(150, 100), rng(18, 12), blockdir)
+        let w = new warnings(d.warning_pos.x, d.warning_pos.y, d.height * d.width / 1000)
+        w.start()
+        setTimeout(() => {
+            w.stop()
+            d.start()
+        }, rng(1200, 800))
     }
 
+
     timer += 1
-    score = timer
+    score += 1
     score_display.innerText = "score: " + score
     if (!game.lost) requestAnimationFrame(run_frame)
 }
