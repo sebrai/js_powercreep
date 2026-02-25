@@ -262,8 +262,8 @@ class bullets {
             return this.x > size[0] + 1 || this.y > size[1] + 1 || this.y < -(this.height + 1) || this.x < -(this.width + 1)
         }
         this.despawn = function () {
-            const index = game.death_blocks.indexOf(this)
-            game.death_blocks.splice(index, 1)
+            const index = game.bullets.indexOf(this)
+            game.bullets.splice(index, 1)
         }
         this.try_despawn = function () {
             if (!this.check_despawn()) return;
