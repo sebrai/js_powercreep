@@ -94,7 +94,7 @@ function dash() {
 
 }
 function shoot_bullet() {
-    new bullets(20 + rng(20, 0))
+    new bullets(10 + rng(10, 0))
 }
 
 
@@ -509,7 +509,7 @@ function run_frame() {
         // console.log(element);
 
     }
-    if (timer % 75 === 0 && timer != 0) {
+    if (timer % 50 === 0 && timer != 0) {
         let blockdir = basic_dir[rng(basic_dir.length - 1, 0)]
         let d = new deathblock(rng(150, 100), rng(150, 100), rng(18, 12), blockdir)
         let w = new warnings(d.warning_pos.x, d.warning_pos.y, d.height * d.width / 1000)
