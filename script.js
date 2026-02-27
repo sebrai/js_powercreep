@@ -34,8 +34,8 @@ let game = {
     started: false,
     lost: false,
     paused: false,
-     mx:0,
-     my:0,
+    mx: 0,
+    my: 0,
 }
 
 
@@ -96,11 +96,11 @@ function dash() {
 
 }
 function shoot_bullet() {
-    let b= new bullets(20 )
+    let b = new bullets(20)
     b.start()
 }
 function bullet_to_mouse() {
-    let b= new bullets(15 + rng(5, 0),player_to_mouse_sin_cos())
+    let b = new bullets(15 + rng(5, 0), player_to_mouse_sin_cos())
     b.start()
 }
 
@@ -265,7 +265,7 @@ class deathblock {
     }
 }
 class bullets {
-    constructor(speed,sincos =[player.vx / player.getspeed(), player.vy / player.getspeed()], color = "#4fab88", x_logik = () => { }) {
+    constructor(speed, sincos = [player.vx / player.getspeed(), player.vy / player.getspeed()], color = "#4fab88", x_logik = () => { }) {
         this.radius = 5
         this.x = 0
         this.y = 0
@@ -273,7 +273,7 @@ class bullets {
         this.vy = 0
         this.base_speed = speed
         this.speed = speed
-        this. natural_sin_cos = sincos
+        this.natural_sin_cos = sincos
         this.moving = false
         this.color = color
         this.move = function () {
@@ -282,13 +282,13 @@ class bullets {
         }
         this.setmovement = function () {
             this.moving = true
-            this.vx = this.speed *this.natural_sin_cos[1]
+            this.vx = this.speed * this.natural_sin_cos[1]
             this.vy = this.speed * this.natural_sin_cos[0]
         }
         this.extra_logik = x_logik
         this.setposition = function () {
-            this.x = player.x 
-            this.y = player.y 
+            this.x = player.x
+            this.y = player.y
         }
         this.start = function () {
             game.bullets.push(this)
@@ -305,6 +305,21 @@ class bullets {
         this.try_despawn = function () {
             if (!this.check_despawn()) return;
             this.despawn()
+        }
+        this.runframe = function () {
+            this.move()
+            this.extra_logik()
+            ctx.fillStyle = this.color
+            ctx.beginPath()
+            ctx.arc(this.x, this.y, this.radius, 0, 2 * Math.PI)
+            ctx.stroke()
+            ctx.fill()
+            let colition = this.colition_check()
+            if (colition.colided) {
+                this.despawn()
+                colition.item.despawn()
+                score += 50
+            }
         }
         this.colition_check = function () {
             let colition = { colided: false, item: null }
@@ -348,21 +363,21 @@ document.addEventListener("keyup", (e) => {
 c_picker.addEventListener("change", () => {
     player.color = c_picker.value
 })
-c.addEventListener("mousemove",(event)=>{
+c.addEventListener("mousemove", (event) => {
     let bbox = c.getBoundingClientRect()
-    game.mx =event.clientX- bbox.left
+    game.mx = event.clientX - bbox.left
     game.my = event.clientY - bbox.top
     // console.log(game.mx ,game.my)
 })
 function player_to_mouse_sin_cos() {
-    let xdist =game.mx -player.x
+    let xdist = game.mx - player.x
     let ydist = game.my - player.y
-    let length = Math.sqrt(xdist**2+ydist**2)
-    let sin = ydist/length
-    let cos = xdist/length
+    let length = Math.sqrt(xdist ** 2 + ydist ** 2)
+    let sin = ydist / length
+    let cos = xdist / length
     // console.log(sin,cos);
-    
-    return [sin,cos]
+
+    return [sin, cos]
 }
 function add_smile() {
     // --- Draw the eyes ---
@@ -499,19 +514,7 @@ function run_frame() {
     let bullets_copy = game.bullets
     for (let index = 0; index < bullets_copy.length; index++) {
         const element = bullets_copy[index];
-        element.move()
-        element.extra_logik()
-        ctx.fillStyle = element.color
-        ctx.beginPath()
-        ctx.arc(element.x, element.y, element.radius, 0, 2 * Math.PI)
-        ctx.stroke()
-        ctx.fill()
-        let colition = element.colition_check()
-        if (colition.colided) {
-            element.despawn()
-            colition.item.despawn()
-            score+=50
-        }
+        element.runframe()
     }
 
 
@@ -536,7 +539,7 @@ function run_frame() {
         let blockdir = basic_dir[rng(basic_dir.length - 1, 0)]
         let d = new deathblock(rng(200, 120), rng(200, 120), rng(20, 15), blockdir)
         d.setposition()
-        let w = new warnings(d.warning_pos.x, d.warning_pos.y, d.height * d.width / 1000)
+        let w = new warnings(d.warning_pos.x, d.warning_pos.y, 25)
         w.start()
         setTimeout(() => {
             w.stop()
