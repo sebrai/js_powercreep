@@ -11,13 +11,13 @@ let timer = 0
 let movement_speed = 15
 const basic_dir = [
     "left", "left",
-    "up,left",
+    // "up,left",
     "up", "up",
-    "up,right",
+    // "up,right",
     "right", "right",
-    "down,right",
+    // "down,right",
     "down", "down",
-    "down,left"
+    // "down,left"
 ]
 function rng(max = 100, min = 0) {
     let r = Math.floor(Math.random() * (max + 1 - min)) + min
@@ -34,6 +34,8 @@ let game = {
     started: false,
     lost: false,
     paused: false,
+     mx:0,
+     my:0,
 }
 
 
@@ -79,7 +81,7 @@ let player = {
 
 
     },
-    sp_func: shoot_bullet,
+    sp_func: bullet_to_mouse,
     sp_coldown: 0
 }
 
@@ -94,7 +96,12 @@ function dash() {
 
 }
 function shoot_bullet() {
-    new bullets(10 + rng(10, 0))
+    let b= new bullets(20 )
+    b.start()
+}
+function bullet_to_mouse() {
+    let b= new bullets(15 + rng(5, 0),player_to_mouse_sin_cos())
+    b.start()
 }
 
 
@@ -254,11 +261,11 @@ class deathblock {
                 this.y + this.height < player.y)
         }
         // this.start()
-        this.setposition()
+        // this.setposition()
     }
 }
 class bullets {
-    constructor(speed, color = "#4fab88", x_logik = () => { }) {
+    constructor(speed,sincos =[player.vx / player.getspeed(), player.vy / player.getspeed()], color = "#4fab88", x_logik = () => { }) {
         this.radius = 5
         this.x = 0
         this.y = 0
@@ -266,7 +273,7 @@ class bullets {
         this.vy = 0
         this.base_speed = speed
         this.speed = speed
-
+        this. natural_sin_cos = sincos
         this.moving = false
         this.color = color
         this.move = function () {
@@ -275,13 +282,13 @@ class bullets {
         }
         this.setmovement = function () {
             this.moving = true
-            this.vx = this.speed * player.vx / player.getspeed()
-            this.vy = this.speed * player.vy / player.getspeed()
+            this.vx = this.speed *this.natural_sin_cos[1]
+            this.vy = this.speed * this.natural_sin_cos[0]
         }
         this.extra_logik = x_logik
         this.setposition = function () {
-            this.x = player.x + (player.vx / player.getspeed()) * player.radius
-            this.y = player.y + (player.vy / player.getspeed()) * player.radius
+            this.x = player.x 
+            this.y = player.y 
         }
         this.start = function () {
             game.bullets.push(this)
@@ -315,7 +322,7 @@ class bullets {
             }
             return colition
         }
-        this.start()
+        // this.start()
 
     }
 }
@@ -341,6 +348,22 @@ document.addEventListener("keyup", (e) => {
 c_picker.addEventListener("change", () => {
     player.color = c_picker.value
 })
+c.addEventListener("mousemove",(event)=>{
+    let bbox = c.getBoundingClientRect()
+    game.mx =event.clientX- bbox.left
+    game.my = event.clientY - bbox.top
+    // console.log(game.mx ,game.my)
+})
+function player_to_mouse_sin_cos() {
+    let xdist =game.mx -player.x
+    let ydist = game.my - player.y
+    let length = Math.sqrt(xdist**2+ydist**2)
+    let sin = ydist/length
+    let cos = xdist/length
+    // console.log(sin,cos);
+    
+    return [sin,cos]
+}
 function add_smile() {
     // --- Draw the eyes ---
     ctx.fillStyle = "black";
@@ -511,13 +534,14 @@ function run_frame() {
     }
     if (timer % 50 === 0 && timer != 0) {
         let blockdir = basic_dir[rng(basic_dir.length - 1, 0)]
-        let d = new deathblock(rng(150, 100), rng(150, 100), rng(18, 12), blockdir)
+        let d = new deathblock(rng(200, 120), rng(200, 120), rng(20, 15), blockdir)
+        d.setposition()
         let w = new warnings(d.warning_pos.x, d.warning_pos.y, d.height * d.width / 1000)
         w.start()
         setTimeout(() => {
             w.stop()
             d.start()
-        }, rng(1200, 800))
+        }, rng(1100, 600))
     }
 
 
