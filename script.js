@@ -36,6 +36,19 @@ let game = {
     paused: false,
     mx: 0,
     my: 0,
+    start: function () {
+        game.lost = false
+        this.started = true
+        run_frame()
+    },
+    lose: function() {
+        this.lost = true
+        start_btn.disabled = false
+        ctx.clearRect(0,0,size[0],size[1])
+        ctx.fillStyle = "#000000"
+        ctx.fillRect(0,0,size[0],size[1])
+
+    }
 }
 
 
@@ -67,7 +80,7 @@ let player = {
     special: function () {
         if (game.started && this.sp_coldown <= 0) {
             this.sp_func()
-            player.sp_coldown = 2000
+            player.sp_coldown = 100
             let cooldown = setInterval(() => {
                 player.sp_coldown -= 10 // 10 insted if 1  because its to fast for the game to handle
                 // console.count("used")
@@ -276,13 +289,14 @@ class bullets {
         this.natural_sin_cos = sincos
         this.moving = false
         this.color = color
+        this.spread = 5
         this.move = function () {
             this.x += this.vx
             this.y += this.vy
         }
         this.setmovement = function () {
             this.moving = true
-            this.vx = this.speed * this.natural_sin_cos[1]
+            this.vx = this.speed * this.natural_sin_cos[1] 
             this.vy = this.speed * this.natural_sin_cos[0]
         }
         this.extra_logik = x_logik
@@ -423,7 +437,7 @@ class warnings {
             ctx.fillText("!!!", this.x, this.y + this.get_bob())
         }
         this.runframe = function () {
-            console.log(this);
+            // console.log(this);
 
             this.draw()
             this.frame++
@@ -525,7 +539,7 @@ function run_frame() {
         element.extra_logik()
         ctx.fillStyle = element.color
         ctx.fillRect(element.x, element.y, element.width, element.height)
-        if (element.colition_check()) game.lost = true
+        if (element.colition_check()) game.lose()
 
         element.try_despawn() // despwns the enemy if its of the screen
     }
@@ -553,11 +567,9 @@ function run_frame() {
     score_display.innerText = "score: " + score
     if (!game.lost) requestAnimationFrame(run_frame)
 }
-async function start_game() {
-    game.started = true
-    run_frame()
-}
+
+
 start_btn.addEventListener("click", () => {
     start_btn.disabled = true
-    start_game()
+    game.start()
 })
