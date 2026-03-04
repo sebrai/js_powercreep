@@ -37,8 +37,16 @@ let game = {
     mx: 0,
     my: 0,
     start: function () {
-        game.lost = false
+        this.lost = false
         player.lives = 3
+        player.x = 100
+        player.vx = 0
+        player.y = 100
+        player.vy = 0
+        score = 0
+        this.death_blocks =[]
+        this.bullets = []
+        this.warnings = []
         this.started = true
         run_frame()
     },
@@ -186,7 +194,7 @@ class deathblock {
 
                 case "up":
                     // bottom edge
-                    this.y = size[1] - this.height;
+                    this.y = size[1] - 1;
                     this.warning_pos.y = this.y - 10
 
                     if (dirs.length > 1) {
@@ -205,8 +213,8 @@ class deathblock {
 
                 case "down":
                     // top edge
-                    this.y = 0;
-                    this.warning_pos.y = this.y + 10
+                    this.y = -this.height+1;
+                    this.warning_pos.y = this.y +this.height + 10
                     if (dirs.length > 1) {
                         if (dirs.includes("left")) {
                             this.x = rng(size[0] - this.width, diagW);
@@ -222,7 +230,7 @@ class deathblock {
 
                 case "left":
                     // right edge
-                    this.x = size[0] - this.width;
+                    this.x = size[0] ;
                     this.warning_pos.x = this.x - 10
                     if (dirs.length > 1) {
                         if (dirs.includes("up")) {
@@ -239,7 +247,7 @@ class deathblock {
 
                 case "right":
                     // left edge
-                    this.x = 0;
+                    this.x = -this.width +1;
                     this.warning_pos.x = this.x + 10
                     if (dirs.length > 1) {
                         if (dirs.includes("up")) {
@@ -291,7 +299,7 @@ class deathblock {
         }
         this.spawn = function () {
             this.setposition()
-            let w = new warnings(this.warning_pos.x, this.warning_pos.y, 25)
+            let w = new warnings(this.warning_pos.x, this.warning_pos.y,Math.sqrt(this.height**2 +this.width**2)/10)
             w.start()
             setTimeout(() => {
                 w.stop()
