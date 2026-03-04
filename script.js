@@ -38,15 +38,16 @@ let game = {
     my: 0,
     start: function () {
         game.lost = false
+        player.lives = 3
         this.started = true
         run_frame()
     },
-    lose: function() {
+    lose: function () {
         this.lost = true
         start_btn.disabled = false
-        ctx.clearRect(0,0,size[0],size[1])
+        ctx.clearRect(0, 0, size[0], size[1])
         ctx.fillStyle = "#000000"
-        ctx.fillRect(0,0,size[0],size[1])
+        ctx.fillRect(0, 0, size[0], size[1])
 
     }
 }
@@ -63,6 +64,10 @@ let player = {
     maxSpeed: movement_speed,
     radius: 10,
     color: "#3b66f5",
+    lives: 3,
+    invulnerability:false,
+    inv_time: 0,
+    hit_sheild:70,
     mkeys: {
         "w": false,
         "a": false,
@@ -80,7 +85,7 @@ let player = {
     special: function () {
         if (game.started && this.sp_coldown <= 0) {
             this.sp_func()
-            player.sp_coldown = 100
+            player.sp_coldown = 1000
             let cooldown = setInterval(() => {
                 player.sp_coldown -= 10 // 10 insted if 1  because its to fast for the game to handle
                 // console.count("used")
@@ -93,6 +98,14 @@ let player = {
         }
 
 
+    },
+    get_hit: function () {
+        this.lives -= 1
+        if (this.lives){
+            this.invulnerability = true
+            this.inv_time = this.hit_sheild
+        }
+        console.count("got hit")
     },
     sp_func: bullet_to_mouse,
     sp_coldown: 0
@@ -296,7 +309,7 @@ class bullets {
         }
         this.setmovement = function () {
             this.moving = true
-            this.vx = this.speed * this.natural_sin_cos[1] 
+            this.vx = this.speed * this.natural_sin_cos[1]
             this.vy = this.speed * this.natural_sin_cos[0]
         }
         this.extra_logik = x_logik
@@ -456,6 +469,18 @@ function run_frame() {
     ctx.clearRect(0, 0, size[0], size[1]) // clear
 
 
+     if (player.invulnerability){ // count down invulrebillity and flash screen red
+        player.inv_time -=1
+        const hurt_background = ctx.createRadialGradient(size[0]/2,size[1]/2,0,size[0]/2,size[1]/2,Math.max(...size)/2)
+        hurt_background.addColorStop(0,"rgba(255, 255, 255, 0)")
+        hurt_background.addColorStop(1,`rgba(165, 0, 0, ${player.inv_time/player.hit_sheild})`)
+        ctx.fillStyle = hurt_background
+        ctx.fillRect(0,0,size[0],size[1])
+        if (!player.inv_time){
+            player.invulnerability = false
+        }
+     }
+
     const dir_count = Object.values(player.mkeys).filter(value => value === true).length // amount of movemen
 
 
@@ -533,13 +558,16 @@ function run_frame() {
 
 
     let death_blocks_copy = game.death_blocks // copy to make sure order isnt broken if a block despwans
+    if (!player.invulnerability){
+        
+    }
     for (let index = 0; index < death_blocks_copy.length; index++) { // movement and drawing death blocks
         const element = death_blocks_copy[index];
         element.move()
         element.extra_logik()
         ctx.fillStyle = element.color
         ctx.fillRect(element.x, element.y, element.width, element.height)
-        if (element.colition_check()) game.lose()
+        if (element.colition_check() && !player.invulnerability) player.get_hit()
 
         element.try_despawn() // despwns the enemy if its of the screen
     }
@@ -561,11 +589,18 @@ function run_frame() {
         }, rng(1100, 600))
     }
 
-
     timer += 1
     score += 1
     score_display.innerText = "score: " + score
-    if (!game.lost) requestAnimationFrame(run_frame)
+
+    if (player.lives <= 0) game.lost = true
+
+    if (!game.lost) {
+        requestAnimationFrame(run_frame)
+         
+    }else {
+        game.lose()
+    }
 }
 
 
