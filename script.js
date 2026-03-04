@@ -5,7 +5,7 @@ const c_picker = document.getElementById("color")
 const score_display = document.getElementById("score")
 const ctx = c.getContext("2d")
 
-const size = [1100, 550]
+const size = [window.innerWidth*0.85, window.innerHeight *0.85]
 let score = 0
 let timer = 0
 let movement_speed = 15
