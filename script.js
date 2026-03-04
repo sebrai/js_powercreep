@@ -65,9 +65,9 @@ let player = {
     radius: 10,
     color: "#3b66f5",
     lives: 3,
-    invulnerability:false,
+    invulnerability: false,
     inv_time: 0,
-    hit_sheild:70,
+    hit_sheild: 70,
     mkeys: {
         "w": false,
         "a": false,
@@ -101,7 +101,7 @@ let player = {
     },
     get_hit: function () {
         this.lives -= 1
-        if (this.lives){
+        if (this.lives) {
             this.invulnerability = true
             this.inv_time = this.hit_sheild
         }
@@ -469,17 +469,6 @@ function run_frame() {
     ctx.clearRect(0, 0, size[0], size[1]) // clear
 
 
-     if (player.invulnerability){ // count down invulrebillity and flash screen red
-        player.inv_time -=1
-        const hurt_background = ctx.createRadialGradient(size[0]/2,size[1]/2,0,size[0]/2,size[1]/2,Math.max(...size)/2)
-        hurt_background.addColorStop(0,"rgba(255, 255, 255, 0)")
-        hurt_background.addColorStop(1,`rgba(165, 0, 0, ${player.inv_time/player.hit_sheild})`)
-        ctx.fillStyle = hurt_background
-        ctx.fillRect(0,0,size[0],size[1])
-        if (!player.inv_time){
-            player.invulnerability = false
-        }
-     }
 
     const dir_count = Object.values(player.mkeys).filter(value => value === true).length // amount of movemen
 
@@ -558,8 +547,8 @@ function run_frame() {
 
 
     let death_blocks_copy = game.death_blocks // copy to make sure order isnt broken if a block despwans
-    if (!player.invulnerability){
-        
+    if (!player.invulnerability) {
+
     }
     for (let index = 0; index < death_blocks_copy.length; index++) { // movement and drawing death blocks
         const element = death_blocks_copy[index];
@@ -589,6 +578,18 @@ function run_frame() {
         }, rng(1100, 600))
     }
 
+    if (player.invulnerability) { // count down invulrebillity and flash screen red
+        player.inv_time -= 1
+        const hurt_background = ctx.createRadialGradient(size[0] / 2, size[1] / 2, 0, size[0] / 2, size[1] / 2, Math.max(...size) / 2)
+        hurt_background.addColorStop(0, "rgba(255, 255, 255, 0)")
+        hurt_background.addColorStop(1, `rgba(165, 0, 0, ${player.inv_time / player.hit_sheild})`)
+        ctx.fillStyle = hurt_background
+        ctx.fillRect(0, 0, size[0], size[1])
+        if (!player.inv_time) {
+            player.invulnerability = false
+        }
+    }
+
     timer += 1
     score += 1
     score_display.innerText = "score: " + score
@@ -597,8 +598,8 @@ function run_frame() {
 
     if (!game.lost) {
         requestAnimationFrame(run_frame)
-         
-    }else {
+
+    } else {
         game.lose()
     }
 }
