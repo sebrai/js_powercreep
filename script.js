@@ -107,6 +107,17 @@ let player = {
         }
         console.count("got hit")
     },
+    render_hurt: function () {
+        this.inv_time -= 1
+        const hurt_background = ctx.createRadialGradient(size[0] / 2, size[1] / 2, 0, size[0] / 2, size[1] / 2, Math.max(...size) / 2)
+        hurt_background.addColorStop(0, "rgba(255, 255, 255, 0)")
+        hurt_background.addColorStop(1, `rgba(165, 0, 0, ${this.inv_time / this.hit_sheild})`)
+        ctx.fillStyle = hurt_background
+        ctx.fillRect(0, 0, size[0], size[1])
+        if (!this.inv_time) {
+            this.invulnerability = false
+        }
+    },
     sp_func: bullet_to_mouse,
     sp_coldown: 0
 }
@@ -268,6 +279,24 @@ class deathblock {
             game.death_blocks.push(this)
             // this.setposition()
             this.setmovement()
+        }
+        this.runframe = function () {
+            this.move()
+            this.extra_logik()
+            ctx.fillStyle = this.color
+            ctx.fillRect(this.x, this.y, this.width, this.height)
+            if (this.colition_check() && !player.invulnerability) player.get_hit()
+
+            this.try_despawn() // despwns the enemy if its of the screen
+        }
+        this.spawn = function () {
+            this.setposition()
+            let w = new warnings(this.warning_pos.x, this.warning_pos.y, 25)
+            w.start()
+            setTimeout(() => {
+                w.stop()
+                this.start()
+            }, rng(1100, 600))
         }
         this.check_despawn = function () {
             return this.x > size[0] + 1 || this.y > size[1] + 1 || this.y < -(this.height + 1) || this.x < -(this.width + 1)
@@ -552,13 +581,7 @@ function run_frame() {
     }
     for (let index = 0; index < death_blocks_copy.length; index++) { // movement and drawing death blocks
         const element = death_blocks_copy[index];
-        element.move()
-        element.extra_logik()
-        ctx.fillStyle = element.color
-        ctx.fillRect(element.x, element.y, element.width, element.height)
-        if (element.colition_check() && !player.invulnerability) player.get_hit()
-
-        element.try_despawn() // despwns the enemy if its of the screen
+        element.runframe()
     }
     for (let index = 0; index < game.warnings.length; index++) { // draws warnings
         const element = game.warnings[index];
@@ -569,25 +592,11 @@ function run_frame() {
     if (timer % 50 === 0 && timer != 0) {
         let blockdir = basic_dir[rng(basic_dir.length - 1, 0)]
         let d = new deathblock(rng(200, 120), rng(200, 120), rng(20, 15), blockdir)
-        d.setposition()
-        let w = new warnings(d.warning_pos.x, d.warning_pos.y, 25)
-        w.start()
-        setTimeout(() => {
-            w.stop()
-            d.start()
-        }, rng(1100, 600))
+        d.spawn()
     }
 
     if (player.invulnerability) { // count down invulrebillity and flash screen red
-        player.inv_time -= 1
-        const hurt_background = ctx.createRadialGradient(size[0] / 2, size[1] / 2, 0, size[0] / 2, size[1] / 2, Math.max(...size) / 2)
-        hurt_background.addColorStop(0, "rgba(255, 255, 255, 0)")
-        hurt_background.addColorStop(1, `rgba(165, 0, 0, ${player.inv_time / player.hit_sheild})`)
-        ctx.fillStyle = hurt_background
-        ctx.fillRect(0, 0, size[0], size[1])
-        if (!player.inv_time) {
-            player.invulnerability = false
-        }
+        player.render_hurt()
     }
 
     timer += 1
