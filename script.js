@@ -5,7 +5,15 @@ const c_picker = document.getElementById("color")
 const score_display = document.getElementById("score")
 const ctx = c.getContext("2d")
 
-const size = [window.innerWidth*0.85, window.innerHeight *0.85]
+const size = [window.innerWidth * 0.85, window.innerHeight * 0.85]
+window.addEventListener("resize", () => {
+   if (!game.lost){ size[0] = window.innerWidth * 0.85
+    size[1] = window.innerHeight * 0.85
+    c.width = size[0]
+    c.height = size[1]
+    // console.log("screen size changed")
+}
+})
 let score = 0
 let timer = 0
 let movement_speed = 15
@@ -44,7 +52,7 @@ let game = {
         player.y = 100
         player.vy = 0
         score = 0
-        this.death_blocks =[]
+        this.death_blocks = []
         this.bullets = []
         this.warnings = []
         this.started = true
@@ -213,8 +221,8 @@ class deathblock {
 
                 case "down":
                     // top edge
-                    this.y = -this.height+1;
-                    this.warning_pos.y = this.y +this.height + 10
+                    this.y = -this.height + 1;
+                    this.warning_pos.y = this.y + this.height + 10
                     if (dirs.length > 1) {
                         if (dirs.includes("left")) {
                             this.x = rng(size[0] - this.width, diagW);
@@ -230,7 +238,7 @@ class deathblock {
 
                 case "left":
                     // right edge
-                    this.x = size[0] ;
+                    this.x = size[0];
                     this.warning_pos.x = this.x - 10
                     if (dirs.length > 1) {
                         if (dirs.includes("up")) {
@@ -247,7 +255,7 @@ class deathblock {
 
                 case "right":
                     // left edge
-                    this.x = -this.width +1;
+                    this.x = -this.width + 1;
                     this.warning_pos.x = this.x + 10
                     if (dirs.length > 1) {
                         if (dirs.includes("up")) {
@@ -299,7 +307,7 @@ class deathblock {
         }
         this.spawn = function () {
             this.setposition()
-            let w = new warnings(this.warning_pos.x, this.warning_pos.y,Math.sqrt(this.height**2 +this.width**2)/10)
+            let w = new warnings(this.warning_pos.x, this.warning_pos.y, Math.sqrt(this.height ** 2 + this.width ** 2) / 10)
             w.start()
             setTimeout(() => {
                 w.stop()
