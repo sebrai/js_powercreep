@@ -566,7 +566,7 @@ function run_frame() {
         player.vx += player.acceleration
     }
     // limit max speed
-    const currentSpeed = Math.sqrt(player.vx * player.vx + player.vy * player.vy)
+    const currentSpeed = player.getspeed()
 
     if (currentSpeed > player.maxSpeed) {
         const scale = player.maxSpeed / currentSpeed
@@ -579,15 +579,16 @@ function run_frame() {
     player.x += player.vx
     player.y += player.vy
 
-    // make player move lesss based on friction
+    // lower speed based on friction
 
     player.vx *= player.friction
     player.vy *= player.friction
 
-    if (Math.abs(player.vx) < 0.001) player.vx = 0
-    if (Math.abs(player.vy) < 0.001) player.vy = 0
+    if (Math.abs(player.vx) < 0.01) player.vx = 0 // stop you from moving when you arent really moving 
+    if (Math.abs(player.vy) < 0.01) player.vy = 0 // avoids havind the computer do complicated math for no reason
+    
 
-    if (player.x - player.radius < 0) { // check for wal collitions
+    if (player.x - player.radius < 0) { // check for wall collitions
         player.x = player.radius
     } else if (player.x + player.radius > size[0]) {
         player.x = size[0] - player.radius
