@@ -18,6 +18,7 @@ window.addEventListener("resize", () => {
 let score = 0
 let timer = 0
 let movement_speed = 15
+let accel = 2
 const basic_dir = [
     "left", "left",
     // "up,left",
@@ -137,11 +138,11 @@ let player = {
             this.invulnerability = false
         }
     },
-    sp_func: bullet_to_mouse,
+    sp_func: tp_dash,
     sp_coldown: 0
 }
 
-function dash() {
+function tp_dash() {
     const dashLength = 40 + rng(10, -5);
     const speed = Math.sqrt(player.vx ** 2 + player.vy ** 2);
 
@@ -151,6 +152,18 @@ function dash() {
     player.y += (player.vy / speed) * dashLength;
 
 }
+
+// function speed_dash() {
+//     const dashLength = 20 + rng(10, -5);
+//     const speed = Math.sqrt(player.vx ** 2 + player.vy ** 2);
+
+//     if (speed === 0) return; // prevent division by zero
+
+//     player.vx += (player.vx / speed) * dashLength;
+//     player.vy += (player.vy / speed) * dashLength;
+
+// }
+
 function shoot_bullet() {
     let b = new bullets(20)
     b.start()
