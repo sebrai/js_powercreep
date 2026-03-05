@@ -7,12 +7,13 @@ const ctx = c.getContext("2d")
 
 const size = [window.innerWidth * 0.85, window.innerHeight * 0.85]
 window.addEventListener("resize", () => {
-   if (!game.lost){ size[0] = window.innerWidth * 0.85
-    size[1] = window.innerHeight * 0.85
-    c.width = size[0]
-    c.height = size[1]
-    // console.log("screen size changed")
-}
+    if (!game.lost) {
+        size[0] = window.innerWidth * 0.85
+        size[1] = window.innerHeight * 0.85
+        c.width = size[0]
+        c.height = size[1]
+        // console.log("screen size changed")
+    }
 })
 let score = 0
 let timer = 0
@@ -64,6 +65,8 @@ let game = {
         ctx.clearRect(0, 0, size[0], size[1])
         ctx.fillStyle = "#000000"
         ctx.fillRect(0, 0, size[0], size[1])
+
+        draw_button(size[0] / 3, size[1] / 3, 300, 120, "new game", () => { game.start() })
 
     }
 }
@@ -160,6 +163,28 @@ function bullet_to_mouse() {
 
 
 c_picker.value = player.color
+
+function draw_button(x, y, w, h, text, onclick = () => { }) {
+    ctx.fillStyle = "#bbbbbb"
+    ctx.strokeStyle = "#303030"
+    ctx.beginPath();
+    ctx.roundRect(x, y, w, h, 10)
+    ctx.fill()
+    ctx.stroke()
+
+    ctx.fillStyle = "#ffffff"
+    ctx.font = h / 2 + "px serif"
+    ctx.fillText(text, x + w * 0.1, y + h * 0.7)
+    c.addEventListener("click", () => {
+        if (game.mx > x && game.mx < x + w && game.my > y && game.my < y + h) {
+            onclick()
+        }
+        console.count("restart");
+
+    }, { once: true })
+}
+
+
 class deathblock {
     constructor(width, height, speed, direction = "none", color = "#f82121", x_logik = function () { }) {
         this.width = width
