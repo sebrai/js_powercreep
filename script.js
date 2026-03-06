@@ -47,10 +47,10 @@ let game = {
     paused: false,
     mx: 0,
     my: 0,
-    diffuculty:3,
+    diffuculty: 1,
     getspawn_rate: function () {
         let x = this.diffuculty
-        return Math.floor(0.12*x**3 -0.29*x**2 -7*x +56)
+        return Math.floor(0.12 * x ** 3 - 0.29 * x ** 2 - 7 * x + 56)
     },
     start: function () {
         this.lost = false
@@ -115,7 +115,7 @@ let player = {
         let degrees = radians * (180 / Math.PI)
         return { radians: radians, degrees: degrees }
     },
-    special: function () {
+    do_special: function () {
         if (!game.lost) {
             if (game.started && this.sp_coldown <= 0) {
                 this.sp_func()
@@ -155,7 +155,7 @@ let player = {
             this.invulnerability = false
         }
     },
-    sp_func: speed_dash,
+    sp_func: tp_tomouse,
     sp_coldown: 0,
     dash_active: false,
     dash_time: 0,
@@ -196,6 +196,10 @@ function shoot_bullet() {
 function bullet_to_mouse() {
     let b = new bullets(15 + rng(5, 0), player_to_mouse_sin_cos())
     b.start()
+}
+function tp_tomouse() {
+    // player.vx =0, player.vy = 0
+    player.x = game.mx,player.y  = game.my
 }
 
 
@@ -479,7 +483,7 @@ class bullets {
 document.addEventListener("keydown", (e) => {
     if (e.key === " ") {
         // console.log("special used")
-        player.special()
+        player.do_special()
         return
     }
     if (player.mkeys[e.key] == undefined || player.mkeys[e.key] == null) return;
@@ -498,7 +502,7 @@ document.addEventListener("keyup", (e) => {
 c_picker.addEventListener("change", () => {
     player.color = c_picker.value
 })
-diff_slider.addEventListener("change",()=>{
+diff_slider.addEventListener("change", () => {
     game.diffuculty = Number(diff_slider.value)
 })
 c.addEventListener("mousemove", (event) => {
