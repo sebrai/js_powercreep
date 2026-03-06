@@ -145,8 +145,14 @@ let player = {
             this.invulnerability = false
         }
     },
-    sp_func: tp_dash,
-    sp_coldown: 0
+    sp_func: speed_dash,
+    sp_coldown: 0,
+    dash_active: false,
+    dash_time: 0,
+    dash_duration: 8,
+    dash_speed: 25,
+    dash_dir: { x: 0, y: 0 },
+    dash_inv: true,
 }
 
 function tp_dash() {
@@ -160,16 +166,18 @@ function tp_dash() {
 
 }
 
-// function speed_dash() {
-//     const dashLength = 20 + rng(10, -5);
-//     const speed = Math.sqrt(player.vx ** 2 + player.vy ** 2);
+function speed_dash() {
 
-//     if (speed === 0) return; // prevent division by zero
+    const speed = player.getspeed()
 
-//     player.vx += (player.vx / speed) * dashLength;
-//     player.vy += (player.vy / speed) * dashLength;
+    if (speed === 0) return
 
-// }
+    player.dash_dir.x = player.vx / speed
+    player.dash_dir.y = player.vy / speed
+
+    player.dash_active = true
+    player.dash_time = player.dash_duration
+}
 
 function shoot_bullet() {
     let b = new bullets(20)
@@ -346,7 +354,7 @@ class deathblock {
             this.extra_logik()
             ctx.fillStyle = this.color
             ctx.fillRect(this.x, this.y, this.width, this.height)
-            if (this.colition_check() && !player.invulnerability) player.get_hit()
+            if (this.colition_check() && !player.invulnerability && !(player.dash_inv && player.dash_active) ) player.get_hit()
 
             this.try_despawn() // despwns the enemy if its of the screen
         }
@@ -596,8 +604,23 @@ function run_frame() {
 
 
     // move player
-    player.x += player.vx
-    player.y += player.vy
+    if (player.dash_active) {
+
+        player.x += player.dash_dir.x * player.dash_speed
+        player.y += player.dash_dir.y * player.dash_speed
+
+        player.dash_time--
+
+        if (player.dash_time <= 0) {
+            player.dash_active = false
+        }
+
+    } else {
+        player.x += player.vx
+        player.y += player.vy
+
+    }
+
 
     // lower speed based on friction
 
@@ -649,7 +672,7 @@ function run_frame() {
 
     }
     if (timer % 50 === 0 && timer != 0) {
-        game.new_dblock(rng(2,1))
+        game.new_dblock(rng(2, 1))
     }
 
     if (player.invulnerability) { // count down invulrebillity and flash screen red
