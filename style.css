@@ -1,0 +1,18 @@
+canvas{
+    position: fixed;
+    right: 7vw;
+    top: 10vh;
+}
+#score{
+    position: fixed;
+    top: 2%;
+    left: 2%;
+}
+.cont{
+    position: fixed;
+    background-color: rgb(95, 95, 149);
+ border-radius: 25px;
+ padding: 10px;
+ left: 20%;
+ top: 2%;
+}
