@@ -3,6 +3,7 @@ const c = document.querySelector("canvas")
 const start_btn = document.getElementById("start")
 const c_picker = document.getElementById("color")
 const score_display = document.getElementById("score")
+const diff_slider = document.getElementById("difficulty")
 const ctx = c.getContext("2d")
 
 const size = [window.innerWidth * 0.85, window.innerHeight * 0.85]
@@ -46,6 +47,7 @@ let game = {
     paused: false,
     mx: 0,
     my: 0,
+    diffuculty:3,
     start: function () {
         this.lost = false
         player.lives = 3
@@ -110,18 +112,22 @@ let player = {
         return { radians: radians, degrees: degrees }
     },
     special: function () {
-        if (game.started && this.sp_coldown <= 0) {
-            this.sp_func()
-            player.sp_coldown = 1000
-            let cooldown = setInterval(() => {
-                player.sp_coldown -= 10 // 10 insted if 1  because its to fast for the game to handle
-                // console.count("used")
-                if (player.sp_coldown <= 0) {
-                    console.log("sp coldown ended");
+        if (!game.lost) {
+            if (game.started && this.sp_coldown <= 0) {
+                this.sp_func()
+                player.sp_coldown = 1000
+                let cooldown = setInterval(() => {
+                    player.sp_coldown -= 10 // 10 insted if 1  because its to fast for the game to handle
+                    // console.count("used")
+                    if (player.sp_coldown <= 0) {
+                        console.log("sp coldown ended");
 
-                    clearInterval(cooldown)
-                }
-            }, 10);
+                        clearInterval(cooldown)
+                    }
+                }, 10);
+            }
+        } else {
+            console.log("cant special while not in game")
         }
 
 
@@ -354,7 +360,7 @@ class deathblock {
             this.extra_logik()
             ctx.fillStyle = this.color
             ctx.fillRect(this.x, this.y, this.width, this.height)
-            if (this.colition_check() && !player.invulnerability && !(player.dash_inv && player.dash_active) ) player.get_hit()
+            if (this.colition_check() && !player.invulnerability && !(player.dash_inv && player.dash_active)) player.get_hit()
 
             this.try_despawn() // despwns the enemy if its of the screen
         }
@@ -487,6 +493,9 @@ document.addEventListener("keyup", (e) => {
 
 c_picker.addEventListener("change", () => {
     player.color = c_picker.value
+})
+diff_slider.addEventListener("change",()=>{
+    game.diffuculty = Number(diff_slider.value)
 })
 c.addEventListener("mousemove", (event) => {
     let bbox = c.getBoundingClientRect()
@@ -672,7 +681,7 @@ function run_frame() {
 
     }
     if (timer % 50 === 0 && timer != 0) {
-        game.new_dblock(rng(2, 1))
+        game.new_dblock(rng(game.diffuculty, 1))
     }
 
     if (player.invulnerability) { // count down invulrebillity and flash screen red
