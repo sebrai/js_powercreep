@@ -48,6 +48,10 @@ let game = {
     mx: 0,
     my: 0,
     diffuculty:3,
+    getspawn_rate: function () {
+        let x = this.diffuculty
+        return Math.floor(0.12*x**3 -0.29*x**2 -7*x +56)
+    },
     start: function () {
         this.lost = false
         player.lives = 3
@@ -680,7 +684,7 @@ function run_frame() {
         // console.log(element);
 
     }
-    if (timer % 50 === 0 && timer != 0) {
+    if (timer % game.getspawn_rate() === 0 && timer != 0) {
         game.new_dblock(rng(game.diffuculty, 1))
     }
 
