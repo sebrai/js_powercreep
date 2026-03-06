@@ -69,6 +69,13 @@ let game = {
 
         draw_button(size[0] / 3, size[1] / 3, 300, 120, "new game", () => { game.start() })
 
+    },
+    new_dblock: function (count = 1) {
+        for (let i = 0; i < count; i++) {
+            let blockdir = basic_dir[rng(basic_dir.length - 1, 0)]
+            let d = new deathblock(rng(200, 120), rng(200, 120), rng(20, 15), blockdir)
+            d.spawn()
+        }
     }
 }
 
@@ -599,7 +606,7 @@ function run_frame() {
 
     if (Math.abs(player.vx) < 0.01) player.vx = 0 // stop you from moving when you arent really moving 
     if (Math.abs(player.vy) < 0.01) player.vy = 0 // avoids havind the computer do complicated math for no reason
-    
+
 
     if (player.x - player.radius < 0) { // check for wall collitions
         player.x = player.radius
@@ -631,9 +638,6 @@ function run_frame() {
 
 
     let death_blocks_copy = game.death_blocks // copy to make sure order isnt broken if a block despwans
-    if (!player.invulnerability) {
-
-    }
     for (let index = 0; index < death_blocks_copy.length; index++) { // movement and drawing death blocks
         const element = death_blocks_copy[index];
         element.runframe()
@@ -645,9 +649,7 @@ function run_frame() {
 
     }
     if (timer % 50 === 0 && timer != 0) {
-        let blockdir = basic_dir[rng(basic_dir.length - 1, 0)]
-        let d = new deathblock(rng(200, 120), rng(200, 120), rng(20, 15), blockdir)
-        d.spawn()
+        game.new_dblock(rng(2,1))
     }
 
     if (player.invulnerability) { // count down invulrebillity and flash screen red
