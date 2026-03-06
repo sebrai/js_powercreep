@@ -118,17 +118,8 @@ let player = {
     do_special: function () {
         if (!game.lost) {
             if (game.started && this.sp_coldown <= 0) {
-                this.sp_func()
-                player.sp_coldown = 1000
-                let cooldown = setInterval(() => {
-                    player.sp_coldown -= 10 // 10 insted if 1  because its to fast for the game to handle
-                    // console.count("used")
-                    if (player.sp_coldown <= 0) {
-                        console.log("sp coldown ended");
-
-                        clearInterval(cooldown)
-                    }
-                }, 10);
+                this.sp_object.func()
+                this.sp_coldown = this.sp_object.cooldown
             }
         } else {
             console.log("cant special while not in game")
@@ -155,7 +146,7 @@ let player = {
             this.invulnerability = false
         }
     },
-    sp_func: tp_tomouse,
+    sp_object: null,
     sp_coldown: 0,
     dash_active: false,
     dash_time: 0,
@@ -164,45 +155,69 @@ let player = {
     dash_dir: { x: 0, y: 0 },
     dash_inv: true,
 }
+const tp_dash = {
+    func: function () {
+        const dashLength = 40 + rng(10, -5);
+        const speed = Math.sqrt(player.vx ** 2 + player.vy ** 2);
 
-function tp_dash() {
-    const dashLength = 40 + rng(10, -5);
-    const speed = Math.sqrt(player.vx ** 2 + player.vy ** 2);
+        if (speed === 0) return; // prevent division by zero
 
-    if (speed === 0) return; // prevent division by zero
+        player.x += (player.vx / speed) * dashLength;
+        player.y += (player.vy / speed) * dashLength;
 
-    player.x += (player.vx / speed) * dashLength;
-    player.y += (player.vy / speed) * dashLength;
-
+    },
+    name: "test dash",
+    cooldown: 100,
+    icon: "",
 }
 
-function speed_dash() {
-
-    const speed = player.getspeed()
-
-    if (speed === 0) return
-
-    player.dash_dir.x = player.vx / speed
-    player.dash_dir.y = player.vy / speed
-
-    player.dash_active = true
-    player.dash_time = player.dash_duration
+const dash = {
+    func: function () {
+        const speed = player.getspeed()
+        if (speed === 0) return
+        player.dash_dir.x = player.vx / speed
+        player.dash_dir.y = player.vy / speed
+        player.dash_active = true
+        player.dash_time = player.dash_duration
+    },
+    name: "dash",
+    cooldown: 100,
+    icon: "/img/sprint.png",
 }
 
-function shoot_bullet() {
-    let b = new bullets(20)
-    b.start()
+const dir_bullet = {
+    func: function () {
+        let b = new bullets(20, [player.vx / player.getspeed(), player.vy / player.getspeed()], "#c42d2d")
+        b.start()
+    },
+    name: "throw projektile",
+    cooldown: 50,
+    icon: "/img/drop_ball.png",
 }
-function bullet_to_mouse() {
-    let b = new bullets(15 + rng(5, 0), player_to_mouse_sin_cos())
-    b.start()
+
+
+const bullet_to_mouse = {
+    func: function () {
+        let b = new bullets(15 + rng(5, 0) + player.getspeed(), player_to_mouse_sin_cos())
+        b.start()
+    },
+    name: "bullet",
+    cooldown: 50,
+    icon: "/img/falling-blob.png",
 }
-function tp_tomouse() {
+
+const mouse_tp = {
+    func:function () {
     // player.vx =0, player.vy = 0
-    player.x = game.mx,player.y  = game.my
+    player.x = game.mx, player.y = game.my
+},
+    name: "teleport",
+    cooldown: 2000,
+    icon: "/img/star-gate.png",
 }
 
 
+player.sp_object = dash // add way off selecting later
 
 c_picker.value = player.color
 
@@ -583,7 +598,7 @@ class warnings {
 function run_frame() {
     ctx.clearRect(0, 0, size[0], size[1]) // clear
 
-
+ 
 
     const dir_count = Object.values(player.mkeys).filter(value => value === true).length // amount of movemen
 
@@ -618,7 +633,9 @@ function run_frame() {
         player.vx *= scale
         player.vy *= scale
     }
-
+     if (player.sp_coldown>0){
+        player.sp_coldown--
+     }
 
     // move player
     if (player.dash_active) {
