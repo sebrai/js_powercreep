@@ -1,18 +1,28 @@
-canvas{
+canvas {
     position: fixed;
     right: 7vw;
     top: 10vh;
 }
-#score{
+
+#score {
     position: fixed;
     top: 2%;
     left: 2%;
 }
-.cont{
+
+.cont {
+    display: flex;
+    flex-flow: row wrap;
     position: fixed;
     background-color: rgb(95, 95, 149);
- border-radius: 25px;
- padding: 10px;
- left: 20%;
- top: 2%;
+    border-radius: 25px;
+    padding: 10px;
+    left: 20%;
+    top: 2%;
+}
+.tiny_icon{
+    aspect-ratio: 1/1;
+    border-radius: 100%;
+    width: 20px;
+    margin-left: 20px;
 }

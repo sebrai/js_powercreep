@@ -1,10 +1,12 @@
 console.log("hello world");
 const c = document.querySelector("canvas")
-const start_btn = document.getElementById("start")
+let sp_select = document.getElementById("special_select")
 const c_picker = document.getElementById("color")
 const score_display = document.getElementById("score")
 const diff_slider = document.getElementById("difficulty")
 const ctx = c.getContext("2d")
+const menu = document.querySelector(".cont")
+let sp_icon = null
 
 const size = [window.innerWidth * 0.85, window.innerHeight * 0.85]
 window.addEventListener("resize", () => {
@@ -69,12 +71,8 @@ let game = {
     },
     lose: function () {
         this.lost = true
-        start_btn.disabled = false
-        ctx.clearRect(0, 0, size[0], size[1])
-        ctx.fillStyle = "#000000"
-        ctx.fillRect(0, 0, size[0], size[1])
+        this.set_start_btn("retry")
 
-        draw_button(size[0] / 3, size[1] / 3, 300, 120, "new game", () => { game.start() })
 
     },
     new_dblock: function (count = 1) {
@@ -83,6 +81,13 @@ let game = {
             let d = new deathblock(rng(200, 120), rng(200, 120), rng(20, 15), blockdir)
             d.spawn()
         }
+    },
+    set_start_btn: function (text) {
+        ctx.clearRect(0, 0, size[0], size[1])
+        ctx.fillStyle = "#000000"
+        ctx.fillRect(0, 0, size[0], size[1])
+
+        draw_button(size[0] / 3, size[1] / 3, 300, 120, text, () => { game.start() })
     }
 }
 
@@ -217,12 +222,34 @@ const mouse_tp = {
     icon: "/img/star-gate.svg",
 }
 
+let splist = [dash, mouse_tp, bullet_to_mouse, dir_bullet, tp_dash]
+document.addEventListener("DOMContentLoaded", () => {
+    for (let index = 0; index < splist.length; index++) {
+        const element = splist[index];
+        let opt = document.createElement("option")
+        opt.value = element.name
+        opt.textContent = element.name
+        sp_select.appendChild(opt)
 
-player.sp_object = dash // add way off selecting later
+    }
+    sp_select.addEventListener("change", () => {
+        player.sp_object = splist.filter(name => name.name === sp_select.value)[0]
+        sp_icon.src = player.sp_object.icon
+        
+    })
+    player.sp_object = splist.filter(name => name.name === sp_select.value)[0]
+    sp_icon = document.createElement("img")
+    sp_icon.className = "tiny_icon"
+    sp_icon.src = player.sp_object.icon
+    menu.appendChild(sp_icon)
+}, { once: true })
+
+
+
 
 c_picker.value = player.color
 
-function draw_button(x, y, w, h, text, onclick = () => { }) {
+function draw_button(x, y, w, h, text, effect = () => { }) {
     ctx.fillStyle = "#bbbbbb"
     ctx.strokeStyle = "#303030"
     ctx.beginPath();
@@ -232,10 +259,12 @@ function draw_button(x, y, w, h, text, onclick = () => { }) {
 
     ctx.fillStyle = "#ffffff"
     ctx.font = h / 2 + "px serif"
-    ctx.fillText(text, x + w * 0.1, y + h * 0.7)
+    ctx.textAlign = "center"
+    ctx.textBaseline = "middle"
+    ctx.fillText(text, x + w * 0.5, y + h * 0.5)
     c.addEventListener("click", () => {
         if (game.mx > x && game.mx < x + w && game.my > y && game.my < y + h) {
-            onclick()
+            effect()
         }
         console.count("restart");
 
@@ -717,7 +746,8 @@ function run_frame() {
     timer += 1
     score += 1
     score_display.innerText = "score: " + score
-
+    sp_icon.style.backgroundImage = `conic-gradient(rgba(0, 0, 0, 0.6) 0deg , rgba(0, 0, 0, 0.6) ${360*player.sp_coldown/player.sp_object.cooldown}deg , rgba(0,0,0,0) ${360*player.sp_coldown/player.sp_object.cooldown}deg , rgba(0,0,0,0) 360deg)`
+    // console.log(sp_icon.style)
     if (player.lives <= 0) game.lost = true
 
     if (!game.lost) {
@@ -728,8 +758,4 @@ function run_frame() {
     }
 }
 
-
-start_btn.addEventListener("click", () => {
-    start_btn.disabled = true
-    game.start()
-})
+game.set_start_btn("start game")
