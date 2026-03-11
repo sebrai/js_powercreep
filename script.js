@@ -2,7 +2,6 @@ console.log("hello world");
 const c = document.querySelector("canvas")
 let sp_select = document.getElementById("special_select")
 const c_picker = document.getElementById("color")
-const score_display = document.getElementById("score")
 const diff_slider = document.getElementById("difficulty")
 const ctx = c.getContext("2d")
 const menu = document.querySelector(".cont")
@@ -72,7 +71,11 @@ let game = {
     lose: function () {
         this.lost = true
         this.set_start_btn("retry")
-
+        ctx.font = "50px Arial";
+        ctx.fillStyle = "white"
+        ctx.textAlign = "start"
+        ctx.textBaseline = "top"
+        ctx.fillText("score: " + score, 0, 0);
 
     },
     new_dblock: function (count = 1) {
@@ -235,7 +238,7 @@ document.addEventListener("DOMContentLoaded", () => {
     sp_select.addEventListener("change", () => {
         player.sp_object = splist.filter(name => name.name === sp_select.value)[0]
         sp_icon.src = player.sp_object.icon
-        
+
     })
     player.sp_object = splist.filter(name => name.name === sp_select.value)[0]
     sp_icon = document.createElement("img")
@@ -745,8 +748,12 @@ function run_frame() {
 
     timer += 1
     score += 1
-    score_display.innerText = "score: " + score
-    sp_icon.style.backgroundImage = `conic-gradient(rgba(0, 0, 0, 0.6) 0deg , rgba(0, 0, 0, 0.6) ${360*player.sp_coldown/player.sp_object.cooldown}deg , rgba(0,0,0,0) ${360*player.sp_coldown/player.sp_object.cooldown}deg , rgba(0,0,0,0) 360deg)`
+    ctx.font = "50px Arial";
+    ctx.fillStyle = "black"
+    ctx.textAlign = "start"
+    ctx.textBaseline = "top"
+    ctx.fillText("score: " + score, 0, 0);
+    sp_icon.style.backgroundImage = `conic-gradient(rgba(0, 0, 0, 0.6) 0deg , rgba(0, 0, 0, 0.6) ${360 * player.sp_coldown / player.sp_object.cooldown}deg , rgba(0,0,0,0) ${360 * player.sp_coldown / player.sp_object.cooldown}deg , rgba(0,0,0,0) 360deg)`
     // console.log(sp_icon.style)
     if (player.lives <= 0) game.lost = true
 
