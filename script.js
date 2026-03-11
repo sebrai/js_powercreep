@@ -59,6 +59,7 @@ let game = {
         player.vx = 0
         player.y = 100
         player.vy = 0
+        player.sp_coldown = 0
         score = 0
         this.death_blocks = []
         this.bullets = []
@@ -181,7 +182,7 @@ const dash = {
         player.dash_time = player.dash_duration
     },
     name: "dash",
-    cooldown: 100,
+    cooldown: 50,
     icon: "/img/sprint.png",
 }
 
@@ -191,7 +192,7 @@ const dir_bullet = {
         b.start()
     },
     name: "throw projektile",
-    cooldown: 50,
+    cooldown: 20,
     icon: "/img/drop_ball.png",
 }
 
@@ -207,13 +208,13 @@ const bullet_to_mouse = {
 }
 
 const mouse_tp = {
-    func:function () {
-    // player.vx =0, player.vy = 0
-    player.x = game.mx, player.y = game.my
-},
+    func: function () {
+        // player.vx =0, player.vy = 0
+        player.x = game.mx, player.y = game.my
+    },
     name: "teleport",
-    cooldown: 2000,
-    icon: "/img/star-gate.png",
+    cooldown: 1000,
+    icon: "/img/star-gate.svg",
 }
 
 
@@ -598,7 +599,7 @@ class warnings {
 function run_frame() {
     ctx.clearRect(0, 0, size[0], size[1]) // clear
 
- 
+
 
     const dir_count = Object.values(player.mkeys).filter(value => value === true).length // amount of movemen
 
@@ -633,9 +634,9 @@ function run_frame() {
         player.vx *= scale
         player.vy *= scale
     }
-     if (player.sp_coldown>0){
+    if (player.sp_coldown > 0) {
         player.sp_coldown--
-     }
+    }
 
     // move player
     if (player.dash_active) {
