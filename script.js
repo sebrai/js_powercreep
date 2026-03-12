@@ -91,6 +91,10 @@ let game = {
         ctx.fillRect(0, 0, size[0], size[1])
 
         draw_button(size[0] / 3, size[1] / 3, 300, 120, text, () => { game.start() })
+    },
+    ui: {
+        sp_icon_size: 25,
+        sp_icon_offset: 30,
     }
 }
 
@@ -753,7 +757,6 @@ function run_frame() {
     ctx.textAlign = "start"
     ctx.textBaseline = "top"
     ctx.fillText("score: " + score, 0, 0);
-    sp_icon.style.backgroundImage = `conic-gradient(rgba(0, 0, 0, 0.6) 0deg , rgba(0, 0, 0, 0.6) ${360 * player.sp_coldown / player.sp_object.cooldown}deg , rgba(0,0,0,0) ${360 * player.sp_coldown / player.sp_object.cooldown}deg , rgba(0,0,0,0) 360deg)`
     // console.log(sp_icon.style)
     if (player.lives <= 0) game.lost = true
 
