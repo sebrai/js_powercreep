@@ -43,6 +43,7 @@ let game = {
     death_blocks: [],
     bullets: [],
     warnings: [],
+    coins: [],
     started: false,
     lost: false,
     paused: false,
@@ -532,6 +533,51 @@ class bullets {
 
     }
 }
+class coin {
+    constructor(x, y, value,r =10) {
+        this.color = "yellow"
+        this.x = x
+        this.y = y
+        this.value = value
+        this.radius = r
+        this.check_colli = function(){
+            let player_dist = Math.sqrt((player.x-this.x)**2 + (player.y-this.y)**2)
+            return player.radius+this.radius >= player_dist
+        }
+        this.draw = function () {
+            ctx.strokeStyle = "#000000"
+            ctx.fillStyle = this.color
+            ctx.beginPath()
+            ctx.arc(this.x,this.y,this.radius,0,Math.PI*2)
+            ctx.closePath()
+            ctx.stroke()
+            ctx.fill()
+            ctx.beginPath()
+            ctx.moveTo(this.x -this.radius*0.8, this.y)
+            ctx.lineTo(this.x+this.radius*0.8,this.y)
+            ctx.stroke()
+        }
+        this.despawn = function () {
+            const index = game.coins.indexOf(this)
+            game.coins.splice(index, 1)
+        }
+        this.collect = function () {
+            score += this.value
+            this.despawn()
+        }
+        this.init = function () {
+            this.color = this.value >= 200 ? "#e1bd37" : this.value >= 100 ? "#7d7d85be" : "#9b3802"
+            game.coins.push(this)
+        }
+        this.runframe = function () {
+           if (this.check_colli()) {
+            this.collect()
+           } else {
+            this.draw()
+           }
+        }
+    }
+}
 document.addEventListener("keydown", (e) => {
     if (e.key === " ") {
         // console.log("special used")
@@ -742,8 +788,17 @@ function run_frame() {
         // console.log(element);
 
     }
+    let coin_copy = game.coins
+    for (let index = 0; index < coin_copy.length; index++) {
+        const element = coin_copy[index];
+        element.runframe()
+    }
     if (timer % game.getspawn_rate() === 0 && timer != 0) {
         game.new_dblock(rng(game.diffuculty, 1))
+    }
+     if (timer % 75 === 0 && timer != 0) {
+         let nc = new coin(rng(size[0]*0.75,size[0]*0.25),rng(size[0]*0.75,size[0]*0.25),rng(250,50))
+         nc.init()
     }
 
     if (player.invulnerability) { // count down invulrebillity and flash screen red
@@ -757,7 +812,22 @@ function run_frame() {
     ctx.textAlign = "start"
     ctx.textBaseline = "top"
     ctx.fillText("score: " + score, 0, 0);
-    // console.log(sp_icon.style)
+    let cooldowndeg = 360 * player.sp_coldown / player.sp_object.cooldown
+
+    // sp_icon.style.backgroundImage = `conic-gradient(rgba(0, 0, 0, 0.6) 0deg , rgba(0, 0, 0, 0.6) ${cooldowndeg}deg , rgba(0,0,0,0) ${cooldowndeg}deg , rgba(0,0,0,0) 360deg)`
+    let gradient = ctx.createConicGradient(0, game.ui.sp_icon_offset, size[1] - game.ui.sp_icon_offset)
+    gradient.addColorStop(0, "rgba(0, 0, 0, 0.6)")
+    gradient.addColorStop(cooldowndeg / 360, "rgba(0, 0, 0, 0.6)")
+    gradient.addColorStop(cooldowndeg / 360, "rgba(0, 0, 0, 0)")
+    gradient.addColorStop(1, "rgba(0, 0, 0, 0)")
+    ctx.fillStyle = gradient
+    ctx.beginPath()
+    ctx.arc(game.ui.sp_icon_offset, size[1] - game.ui.sp_icon_offset, game.ui.sp_icon_size, 0, Math.PI * 2)
+    ctx.closePath()
+    ctx.fill()
+
+
+    ctx.drawImage(sp_icon, game.ui.sp_icon_offset - 20, size[1] - game.ui.sp_icon_offset - 15, game.ui.sp_icon_size * 1.5, game.ui.sp_icon_size * 1.5)
     if (player.lives <= 0) game.lost = true
 
     if (!game.lost) {
