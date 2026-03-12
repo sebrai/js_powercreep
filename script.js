@@ -191,7 +191,7 @@ const dash = {
     },
     name: "dash",
     cooldown: 50,
-    icon: "/img/sprint.png",
+    icon: "/img/sprint.svg",
 }
 
 const dir_bullet = {
