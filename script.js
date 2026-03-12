@@ -66,6 +66,7 @@ let game = {
         this.death_blocks = []
         this.bullets = []
         this.warnings = []
+        this.coins = []
         this.started = true
         run_frame()
     },
@@ -534,7 +535,7 @@ class bullets {
     }
 }
 class coin {
-    constructor(x, y, value,r =10) {
+    constructor(x, y, value,r =20) {
         this.color = "yellow"
         this.x = x
         this.y = y
@@ -553,8 +554,8 @@ class coin {
             ctx.stroke()
             ctx.fill()
             ctx.beginPath()
-            ctx.moveTo(this.x -this.radius*0.8, this.y)
-            ctx.lineTo(this.x+this.radius*0.8,this.y)
+            ctx.moveTo(this.x , this.y-this.radius*0.8)
+            ctx.lineTo(this.x,this.y+this.radius*0.8)
             ctx.stroke()
         }
         this.despawn = function () {
@@ -566,7 +567,7 @@ class coin {
             this.despawn()
         }
         this.init = function () {
-            this.color = this.value >= 200 ? "#e1bd37" : this.value >= 100 ? "#7d7d85be" : "#9b3802"
+            this.color = this.value >= 200 ? "#e1bd37" : this.value >= 100 ? "#7d7d85" : "#9b3802"
             game.coins.push(this)
         }
         this.runframe = function () {
@@ -797,7 +798,7 @@ function run_frame() {
         game.new_dblock(rng(game.diffuculty, 1))
     }
      if (timer % 75 === 0 && timer != 0) {
-         let nc = new coin(rng(size[0]*0.75,size[0]*0.25),rng(size[0]*0.75,size[0]*0.25),rng(250,50))
+         let nc = new coin(rng(size[0]*0.75,size[0]*0.25),rng(size[1]*0.75,size[1]*0.25),rng(250,50))
          nc.init()
     }
 
