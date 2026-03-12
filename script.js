@@ -535,7 +535,7 @@ class bullets {
     }
 }
 class coin {
-    constructor(x, y, value,r =20) {
+    constructor(x, y, value,r =20-game.diffuculty**1.5) {
         this.color = "yellow"
         this.x = x
         this.y = y
