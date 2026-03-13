@@ -20,7 +20,7 @@
 - game difficulty slider (*1-5*)
 - speacial selection 
 
-![picture of settings not loaded](/img/md%20_screenshots/image.png)
+![picture of settings not loaded](/img/md_screenshots/image.png)
 
 ## extra 
  
