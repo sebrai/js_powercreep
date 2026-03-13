@@ -202,7 +202,7 @@ const dash = {
 
 const dir_bullet = {
     func: function () {
-        let b = new bullets(20, [player.vx / player.getspeed(), player.vy / player.getspeed()], "#c42d2d")
+        let b = new bullets(20, [player.vy / player.getspeed(), player.vx / player.getspeed()], "#c42d2d")
         b.start()
     },
     name: "throw projektile",
