@@ -575,7 +575,7 @@ class coin {
             this.timer -= 1
             if (this.check_colli()) {
                 this.collect()
-            } else if (this.timer = 0){
+            } else if (this.timer === 0){
                 this.despawn()
             } else {
                 this.draw()
