@@ -53,7 +53,9 @@ let game = {
     coin_rate: 75,
     coin_min: 50,
     coin_max: 250,
-    coin_shower_timer: 400,
+    coin_duration: 150,
+    coin_shower_timer: 0,
+    coin_shower_duration: 250,
     getspawn_rate: function () {
         let x = this.diffuculty
         return Math.floor(0.12 * x ** 3 - 0.29 * x ** 2 - 7 * x + 56)
@@ -237,7 +239,7 @@ const mouse_tp = {
 }
 const coin_shower = {
     func: function () {
-        game.coin_shower_timer = 250
+        game.coin_shower_timer = game.coin_shower_duration -game.diffuculty**3
     },
     name: "coin shower",
     cooldown: 1000,
@@ -555,7 +557,7 @@ class coin {
         this.y = y
         this.value = value
         this.radius = r
-        this.timer = rng(220, 180)
+        this.timer = game.coin_duration +30 - 10*game.diffuculty 
         this.check_colli = function () {
             let player_dist = Math.sqrt((player.x - this.x) ** 2 + (player.y - this.y) ** 2)
             return player.radius + this.radius >= player_dist
@@ -832,12 +834,14 @@ function run_frame() {
         game.coin_max = 170
         game.coin_min = 40
         game.coin_rate = 75
+        game.coin_duration = 150
     }
     if (game.coin_shower_timer) {
         game.coin_shower_timer -= 1
         game.coin_max = 300
         game.coin_min = 100
         game.coin_rate = 25
+        game.coin_duration = 150 + game.coin_shower_duration -game.diffuculty**3
     }
 
 
