@@ -547,6 +547,7 @@ class coin {
             return player.radius + this.radius >= player_dist
         }
         this.draw = function () {
+            this .y += Math.sin(timer/(Math.PI*3))
             ctx.strokeStyle = "#000000"
             ctx.fillStyle = this.color
             ctx.beginPath()
