@@ -50,6 +50,9 @@ let game = {
     mx: 0,
     my: 0,
     diffuculty: 1,
+    coin_rate:75,
+    coin_min:50,
+    coin_max: 250,
     getspawn_rate: function () {
         let x = this.diffuculty
         return Math.floor(0.12 * x ** 3 - 0.29 * x ** 2 - 7 * x + 56)
@@ -802,8 +805,8 @@ function run_frame() {
     if (timer % game.getspawn_rate() === 0 && timer != 0) {
         game.new_dblock(rng(game.diffuculty, 1))
     }
-    if (timer % 75 === 0 && timer != 0) {
-        let nc = new coin(rng(size[0] * 0.75, size[0] * 0.25), rng(size[1] * 0.75, size[1] * 0.25), rng(250, 50))
+    if (timer % game.coin_rate === 0 && timer != 0) {
+        let nc = new coin(rng(size[0] * 0.75, size[0] * 0.25), rng(size[1] * 0.75, size[1] * 0.25), rng(game.coin_max, game.coin_min))
         nc.init()
     }
 
