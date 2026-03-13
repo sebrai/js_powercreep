@@ -50,9 +50,10 @@ let game = {
     mx: 0,
     my: 0,
     diffuculty: 1,
-    coin_rate:75,
-    coin_min:50,
+    coin_rate: 75,
+    coin_min: 50,
     coin_max: 250,
+    coin_shower_timer: 400,
     getspawn_rate: function () {
         let x = this.diffuculty
         return Math.floor(0.12 * x ** 3 - 0.29 * x ** 2 - 7 * x + 56)
@@ -70,6 +71,7 @@ let game = {
         this.bullets = []
         this.warnings = []
         this.coins = []
+        this.coin_shower_timer = 0
         this.started = true
         run_frame()
     },
@@ -233,8 +235,17 @@ const mouse_tp = {
     cooldown: 1000,
     icon: "/img/star-gate.svg",
 }
+const coin_shower = {
+    func: function () {
+        game.coin_shower_timer = 250
+    },
+    name: "coin shower",
+    cooldown: 1000,
+    icon: "/img/coins-pile.svg"
+}
 
-let splist = [dash, mouse_tp, bullet_to_mouse, dir_bullet, tp_dash]
+
+let splist = [dash, mouse_tp, bullet_to_mouse, dir_bullet, coin_shower]
 document.addEventListener("DOMContentLoaded", () => {
     for (let index = 0; index < splist.length; index++) {
         const element = splist[index];
@@ -550,7 +561,7 @@ class coin {
             return player.radius + this.radius >= player_dist
         }
         this.draw = function () {
-            this .y += Math.sin(timer/(Math.PI*3))
+            this.y += Math.sin(timer / (Math.PI * 3))
             ctx.strokeStyle = "#000000"
             ctx.fillStyle = this.color
             ctx.beginPath()
@@ -572,14 +583,14 @@ class coin {
             this.despawn()
         }
         this.init = function () {
-            this.color = this.value >= 200 ? "#e1bd37" : this.value >= 100 ? "#7d7d85" : "#9b3802"
+            this.color = this.value >= 150 ? "#e1bd37" : this.value >= 100 ? "#7d7d85" : "#9b3802"
             game.coins.push(this)
         }
         this.runframe = function () {
             this.timer -= 1
             if (this.check_colli()) {
                 this.collect()
-            } else if (this.timer === 0){
+            } else if (this.timer === 0) {
                 this.despawn()
             } else {
                 this.draw()
@@ -816,6 +827,23 @@ function run_frame() {
 
     timer += 1
     score += 1
+
+    if (!game.coin_shower_timer) {
+        game.coin_max = 170
+        game.coin_min = 40
+        game.coin_rate = 75
+    }
+    if (game.coin_shower_timer) {
+        game.coin_shower_timer -= 1
+        game.coin_max = 300
+        game.coin_min = 100
+        game.coin_rate = 25
+    }
+
+
+
+
+
     ctx.font = "50px Arial";
     ctx.fillStyle = "black"
     ctx.textAlign = "start"
