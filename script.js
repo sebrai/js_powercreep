@@ -535,27 +535,28 @@ class bullets {
     }
 }
 class coin {
-    constructor(x, y, value,r =20-game.diffuculty**1.5) {
+    constructor(x, y, value, r = 20 - game.diffuculty ** 1.5) {
         this.color = "yellow"
         this.x = x
         this.y = y
         this.value = value
         this.radius = r
-        this.check_colli = function(){
-            let player_dist = Math.sqrt((player.x-this.x)**2 + (player.y-this.y)**2)
-            return player.radius+this.radius >= player_dist
+        this.timer = rng(220, 180)
+        this.check_colli = function () {
+            let player_dist = Math.sqrt((player.x - this.x) ** 2 + (player.y - this.y) ** 2)
+            return player.radius + this.radius >= player_dist
         }
         this.draw = function () {
             ctx.strokeStyle = "#000000"
             ctx.fillStyle = this.color
             ctx.beginPath()
-            ctx.arc(this.x,this.y,this.radius,0,Math.PI*2)
+            ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2)
             ctx.closePath()
             ctx.stroke()
             ctx.fill()
             ctx.beginPath()
-            ctx.moveTo(this.x , this.y-this.radius*0.8)
-            ctx.lineTo(this.x,this.y+this.radius*0.8)
+            ctx.moveTo(this.x, this.y - this.radius * 0.8)
+            ctx.lineTo(this.x, this.y + this.radius * 0.8)
             ctx.stroke()
         }
         this.despawn = function () {
@@ -571,11 +572,14 @@ class coin {
             game.coins.push(this)
         }
         this.runframe = function () {
-           if (this.check_colli()) {
-            this.collect()
-           } else {
-            this.draw()
-           }
+            this.timer -= 1
+            if (this.check_colli()) {
+                this.collect()
+            } else if (this.timer = 0){
+                this.despawn()
+            } else {
+                this.draw()
+            }
         }
     }
 }
@@ -797,9 +801,9 @@ function run_frame() {
     if (timer % game.getspawn_rate() === 0 && timer != 0) {
         game.new_dblock(rng(game.diffuculty, 1))
     }
-     if (timer % 75 === 0 && timer != 0) {
-         let nc = new coin(rng(size[0]*0.75,size[0]*0.25),rng(size[1]*0.75,size[1]*0.25),rng(250,50))
-         nc.init()
+    if (timer % 75 === 0 && timer != 0) {
+        let nc = new coin(rng(size[0] * 0.75, size[0] * 0.25), rng(size[1] * 0.75, size[1] * 0.25), rng(250, 50))
+        nc.init()
     }
 
     if (player.invulnerability) { // count down invulrebillity and flash screen red
