@@ -445,7 +445,7 @@ class deathblock {
                     }
                     break;
             }
-            const offset = 15;
+            const offset = 30;
 
             if (this.dir.includes("up")) {
                 this.warning_pos.x = this.x + this.width / 2;
@@ -680,7 +680,6 @@ function player_to_mouse_sin_cos() {
     return [sin, cos]
 }
 function add_smile() {
-    // --- Draw the eyes ---
     ctx.fillStyle = "black";
 
     // Left eye
@@ -713,6 +712,7 @@ class warnings {
         this.frame = 0
         this.font = font
         this.bob_speed = bob_speed
+        this.text = "!".repeat(rng(4,0))
         this.get_bob = function () {
             let radian_height = this.frame * this.bob_speed * (Math.PI / 180)
             return Math.sin(radian_height) * this.bobheight
@@ -720,7 +720,7 @@ class warnings {
         this.draw = function () {
             ctx.font = this.height + "px " + this.font
             ctx.fillStyle = this.color
-            ctx.fillText("!!!", this.x, this.y + this.get_bob())
+            ctx.fillText(this.text, this.x, this.y + this.get_bob())
         }
         this.runframe = function () {
             // console.log(this);
