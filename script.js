@@ -303,13 +303,15 @@ function draw_button(x, y, w, h, text, effect = () => { },once) {
     ctx.textAlign = "center"
     ctx.textBaseline = "middle"
     ctx.fillText(text, x + w * 0.5, y + h * 0.5)
+    let done = false
     c.addEventListener("click", () => {
-        if (game.mx > x && game.mx < x + w && game.my > y && game.my < y + h) {
+        if (game.mx > x && game.mx < x + w && game.my > y && game.my < y + h && (!done && once)) {
             effect()
+            done = true
         }
         // console.count("restart");
 
-    }, { once: once })
+    })
 }
 
 function drawHeart(x, y, width, height, color, fill) {
