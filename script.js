@@ -56,6 +56,7 @@ let game = {
     coin_duration: 150,
     coin_shower_timer: 0,
     coin_shower_duration: 250,
+    max_lives: 3,
     getspawn_rate: function () {
         let x = this.diffuculty
         return Math.floor(0.12 * x ** 3 - 0.29 * x ** 2 - 7 * x + 56)
@@ -63,6 +64,7 @@ let game = {
     start: function () {
         this.lost = false
         player.lives = 3
+        game.max_lives = 3
         player.x = 100
         player.vx = 0
         player.y = 100
@@ -100,6 +102,12 @@ let game = {
         ctx.fillRect(0, 0, size[0], size[1])
 
         draw_button(size[0] / 3, size[1] / 3, 300, 120, text, () => { game.start() })
+    },
+    show_lives: function () {
+       for (let index = 0; index < this.max_lives; index++) {
+        drawHeart(size[0]- (50*index+40),size[1]-40,35,35,"#ff0000",index+1 <= player.lives)
+        
+       }
     },
     ui: {
         sp_icon_size: 25,
@@ -239,7 +247,7 @@ const mouse_tp = {
 }
 const coin_shower = {
     func: function () {
-        game.coin_shower_timer = game.coin_shower_duration -game.diffuculty**3
+        game.coin_shower_timer = game.coin_shower_duration - game.diffuculty ** 3
     },
     name: "coin shower",
     cooldown: 1000,
@@ -296,6 +304,28 @@ function draw_button(x, y, w, h, text, effect = () => { }) {
     }, { once: true })
 }
 
+function drawHeart(x, y, width, height, color, fill) {
+    ctx.save();
+    ctx.beginPath();
+
+    
+    var topCurveHeight = height * 0.3; 
+    ctx.moveTo(x, y + topCurveHeight);
+
+   
+    ctx.bezierCurveTo(x, y, x - width / 2, y, x - width / 2, y + topCurveHeight);
+    ctx.bezierCurveTo(x - width / 2, y + (height + topCurveHeight) / 2, x, y + (height + topCurveHeight) / 2, x, y + height);
+    ctx.bezierCurveTo(x, y + (height + topCurveHeight) / 2, x + width / 2, y + (height + topCurveHeight) / 2, x + width / 2, y + topCurveHeight);
+    ctx.bezierCurveTo(x + width / 2, y, x, y, x, y + topCurveHeight);
+
+    ctx.closePath();
+    ctx.fillStyle = color;
+    ctx.strokeStyle ="#000000"
+    ctx.lineWidth =2
+    if (fill) ctx.fill();
+    ctx.stroke()
+    ctx.restore();
+}
 
 class deathblock {
     constructor(width, height, speed, direction = "none", color = "#f82121", x_logik = function () { }) {
@@ -557,7 +587,7 @@ class coin {
         this.y = y
         this.value = value
         this.radius = r
-        this.timer = game.coin_duration +30 - 10*game.diffuculty 
+        this.timer = game.coin_duration + 30 - 10 * game.diffuculty
         this.check_colli = function () {
             let player_dist = Math.sqrt((player.x - this.x) ** 2 + (player.y - this.y) ** 2)
             return player.radius + this.radius >= player_dist
@@ -830,6 +860,8 @@ function run_frame() {
     timer += 1
     score += 1
 
+    game.show_lives()
+
     if (!game.coin_shower_timer) {
         game.coin_max = 170
         game.coin_min = 40
@@ -841,7 +873,7 @@ function run_frame() {
         game.coin_max = 300
         game.coin_min = 100
         game.coin_rate = 25
-        game.coin_duration = 150 + game.coin_shower_duration -game.diffuculty**3
+        game.coin_duration = 150 + game.coin_shower_duration - game.diffuculty ** 3
     }
 
 
