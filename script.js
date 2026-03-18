@@ -63,8 +63,8 @@ let game = {
     },
     start: function () {
         this.lost = false
-        player.lives = 3
         game.max_lives = 3
+        player.lives = game.max_lives
         player.x = 100
         player.vx = 0
         player.y = 100
