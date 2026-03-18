@@ -733,6 +733,19 @@ class warnings {
     }
 }
 
+function open_settings() {
+    // generate and move html 
+    game.paused = true
+}
+
+function close_settings() {
+    // close html element
+ game.paused = false
+    if (game.started) {
+        run_frame()
+    }
+    
+}
 function run_frame() {
     ctx.clearRect(0, 0, size[0], size[1]) // clear
 
