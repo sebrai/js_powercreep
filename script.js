@@ -740,12 +740,16 @@ class warnings {
 
 function open_settings() {
     setting.style.top = 0
-    setting.textContent = ""
     game.paused = true
+    let exit = document.createElement("button")
+    exit.addEventListener("click",close_settings)
+    exit.textContent ="back to game"
+    setting.appendChild(exit)
 }
 
 function close_settings() {
     setting.style.top = "-100vh"
+     setting.textContent = ""
     game.paused = false
     if (game.started) {
         run_frame()
