@@ -102,10 +102,19 @@ let game = {
     },
     set_start_btn: function (text) {
         ctx.clearRect(0, 0, size[0], size[1])
-        ctx.fillStyle = "#000000"
-        ctx.fillRect(0, 0, size[0], size[1])
+        // ctx.fillStyle = "#000000"
+        // ctx.fillRect(0, 0, size[0], size[1])
+        let img = new Image(size[0],size[1])
+        img.crossOrigin = "anonymous"
+        img.src = "/img/background.jpg"
+        img.onload = ()=>{
+            img.width =size[0]
+            img.height = size[1]
+            ctx.drawImage(img,0,0,size[0],size[1])
+            draw_button(size[0] / 3, size[1] / 3, 300, 120, text, () => { game.start() }, true)
+        }
 
-        draw_button(size[0] / 3, size[1] / 3, 300, 120, text, () => { game.start() }, true)
+        
     },
     show_lives: function () {
         for (let index = 0; index < this.max_lives; index++) {
