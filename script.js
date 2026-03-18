@@ -79,6 +79,9 @@ let game = {
         this.started = true
         run_frame()
     },
+    is_running: function () {
+        return this.paused || this.lost || !this.started
+    },
     lose: function () {
         this.lost = true
         this.set_start_btn("retry")
@@ -903,11 +906,16 @@ function run_frame() {
     ctx.drawImage(sp_icon, game.ui.sp_icon_offset - 20, size[1] - game.ui.sp_icon_offset - 15, game.ui.sp_icon_size * 1.5, game.ui.sp_icon_size * 1.5)
     if (player.lives <= 0) game.lost = true
 
-    if (!game.lost) {
+    if (!game.is_running()) {
         requestAnimationFrame(run_frame)
 
-    } else {
+    } else if (game.lost){
         game.lose()
+    }
+    else if(!game.started){
+        console.log("please dont manually use run_frame, just press start")
+        console.count("twat counter")
+        game.set_start_btn("start game")
     }
 }
 
