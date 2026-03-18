@@ -5,6 +5,7 @@ const c_picker = document.getElementById("color")
 const diff_slider = document.getElementById("difficulty")
 const ctx = c.getContext("2d")
 const menu = document.querySelector(".cont")
+const setting = document.getElementById("settings")
 let sp_icon = null
 
 const size = [window.innerWidth * 0.85, window.innerHeight * 0.85]
@@ -104,13 +105,13 @@ let game = {
         ctx.fillStyle = "#000000"
         ctx.fillRect(0, 0, size[0], size[1])
 
-        draw_button(size[0] / 3, size[1] / 3, 300, 120, text, () => { game.start() })
+        draw_button(size[0] / 3, size[1] / 3, 300, 120, text, () => { game.start() }, true)
     },
     show_lives: function () {
-       for (let index = 0; index < this.max_lives; index++) {
-        drawHeart(size[0]- (50*index+40),size[1]-40,35,35,"#ff0000",index+1 <= player.lives)
-        
-       }
+        for (let index = 0; index < this.max_lives; index++) {
+            drawHeart(size[0] - (50 * index + 40), size[1] - 40, 35, 35, "#ff0000", index + 1 <= player.lives)
+
+        }
     },
     ui: {
         sp_icon_size: 25,
@@ -280,12 +281,16 @@ document.addEventListener("DOMContentLoaded", () => {
     menu.appendChild(sp_icon)
 }, { once: true })
 
-
+c.addEventListener("click",()=>{
+    if (game.mx > size[0]-70 && game.mx < size[0]-10 && game.my > 10 && game.my < 40){
+        open_settings()
+    }
+})
 
 
 c_picker.value = player.color
 
-function draw_button(x, y, w, h, text, effect = () => { }) {
+function draw_button(x, y, w, h, text, effect = () => { },once) {
     ctx.fillStyle = "#bbbbbb"
     ctx.strokeStyle = "#303030"
     ctx.beginPath();
@@ -302,20 +307,20 @@ function draw_button(x, y, w, h, text, effect = () => { }) {
         if (game.mx > x && game.mx < x + w && game.my > y && game.my < y + h) {
             effect()
         }
-        console.count("restart");
+        // console.count("restart");
 
-    }, { once: true })
+    }, { once: once })
 }
 
 function drawHeart(x, y, width, height, color, fill) {
     ctx.save();
     ctx.beginPath();
 
-    
-    var topCurveHeight = height * 0.3; 
+
+    var topCurveHeight = height * 0.3;
     ctx.moveTo(x, y + topCurveHeight);
 
-   
+
     ctx.bezierCurveTo(x, y, x - width / 2, y, x - width / 2, y + topCurveHeight);
     ctx.bezierCurveTo(x - width / 2, y + (height + topCurveHeight) / 2, x, y + (height + topCurveHeight) / 2, x, y + height);
     ctx.bezierCurveTo(x, y + (height + topCurveHeight) / 2, x + width / 2, y + (height + topCurveHeight) / 2, x + width / 2, y + topCurveHeight);
@@ -323,8 +328,8 @@ function drawHeart(x, y, width, height, color, fill) {
 
     ctx.closePath();
     ctx.fillStyle = color;
-    ctx.strokeStyle ="#000000"
-    ctx.lineWidth =2
+    ctx.strokeStyle = "#000000"
+    ctx.lineWidth = 2
     if (fill) ctx.fill();
     ctx.stroke()
     ctx.restore();
@@ -734,17 +739,18 @@ class warnings {
 }
 
 function open_settings() {
-    // generate and move html 
+    setting.style.top = 0
+    setting.textContent = ""
     game.paused = true
 }
 
 function close_settings() {
-    // close html element
- game.paused = false
+    setting.style.top = "-100vh"
+    game.paused = false
     if (game.started) {
         run_frame()
     }
-    
+
 }
 function run_frame() {
     ctx.clearRect(0, 0, size[0], size[1]) // clear
@@ -891,8 +897,8 @@ function run_frame() {
         game.coin_rate = 25
         game.coin_duration = 150 + game.coin_shower_duration - game.diffuculty ** 3
     }
-
-
+    
+    draw_button(size[0] - 70, 10, 60, 30, "settings")
 
 
 
@@ -922,10 +928,10 @@ function run_frame() {
     if (!game.is_running()) {
         requestAnimationFrame(run_frame)
 
-    } else if (game.lost){
+    } else if (game.lost) {
         game.lose()
     }
-    else if(!game.started){
+    else if (!game.started) {
         console.log("please dont manually use run_frame, just press start")
         console.count("twat counter")
         game.set_start_btn("start game")

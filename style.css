@@ -2,12 +2,7 @@ canvas {
     position: fixed;
     right: 7vw;
     top: 10vh;
-}
-
-#score {
-    position: fixed;
-    top: 2%;
-    left: 2%;
+    z-index: 10;
 }
 
 .cont {
@@ -20,9 +15,25 @@ canvas {
     left: 20%;
     top: 2%;
 }
-.tiny_icon{
+
+.tiny_icon {
     aspect-ratio: 1/1;
     border-radius: 100%;
     width: 30px;
     margin-left: 20px;
+}
+
+#settings {
+    position: fixed;
+    top: -100vh;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+
+    transition: cubic-bezier(0.85, 0.85, 0.14, 0.92) 1s;
+    background-color: #000000db;
+    display: flex;
+    flex-flow: row wrap;
+    z-index: 20;
+
 }
