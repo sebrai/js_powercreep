@@ -609,7 +609,7 @@ class coin {
         this.timer = game.coin_duration + 30 - 10 * game.diffuculty
         this.check_colli = function () {
             let player_dist = Math.sqrt((player.x - this.x) ** 2 + (player.y - this.y) ** 2)
-            return player.radius + this.radius >= player_dist
+            return player.radius + this.radius >= player_dist - 5 +game.diffuculty
         }
         this.draw = function () {
             this.y += Math.sin(timer / (Math.PI * 3))
