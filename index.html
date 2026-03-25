@@ -10,8 +10,8 @@
 </head>
 
 <body>
-    <div id="settings"></div>
-    <div id="cont" class="cont">
+    <div id="settings">
+         <div id="cont" class="cont">
         <label for="color">player color</label>
          <input type="color" name="color" id="color">
         <label for="diff">difficulty</label>
@@ -19,6 +19,9 @@
         <select name="" id="special_select"></select>
      
     </div>
+    <button onclick="close_settings()">return</button>
+    </div>
+   
 
     <canvas style="border: solid black 2px;" width="1250px" height="600px"></canvas>
     <script src="script.js"></script>

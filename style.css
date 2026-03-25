@@ -8,14 +8,19 @@ canvas {
 .cont {
     display: flex;
     flex-flow: row wrap;
-    position: fixed;
-    background-color: rgb(95, 95, 149);
-    border-radius: 25px;
+    gap: 20px;
     padding: 10px;
-    left: 20%;
-    top: 2%;
+   color: white;
+   height: fit-content;
+   width: 20%;
+   align-items: center;
 }
 
+#color{
+    height: 100px;
+    width: 100px;
+    padding: 2px;
+}
 .tiny_icon {
     aspect-ratio: 1/1;
     border-radius: 100%;
@@ -36,4 +41,20 @@ canvas {
     flex-flow: row wrap;
     z-index: 20;
 
+}
+
+#settings button {
+    height: 10%;
+    width: 8%;
+    position: absolute;
+    bottom: 5%;
+    right: 2%;
+}
+
+#settings button:hover {
+    height: 11%;
+    width: 9%;
+    bottom: 4.5%;
+    right: 1.5%;
+    transition: all ease 0.1s;
 }

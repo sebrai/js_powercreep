@@ -11,8 +11,8 @@ let sp_icon = null
 const size = [window.innerWidth * 0.85, window.innerHeight * 0.85]
 window.addEventListener("resize", () => {
     if (game.is_running()) {
-       set_c_size()
-      
+        set_c_size()
+
     }
 })
 let score = 0
@@ -35,10 +35,10 @@ function rng(max = 100, min = 0) {
 }
 
 function set_c_size() {
-     size[0] = window.innerWidth * 0.85
-        size[1] = window.innerHeight * 0.85
-        c.width = size[0]
-        c.height = size[1]
+    size[0] = window.innerWidth * 0.85
+    size[1] = window.innerHeight * 0.85
+    c.width = size[0]
+    c.height = size[1]
 }
 
 c.width = size[0]
@@ -115,10 +115,11 @@ let game = {
         //     img.width =size[0]
         //     img.height = size[1]
         //     ctx.drawImage(img,0,0,size[0],size[1])
-           
+
         // }
- draw_button(size[0] / 3, size[1] / 3, 300, 120, text, () => { game.start() }, true)
-        
+        draw_button(size[0] / 3, size[1] / 3, 300, 120, text, () => { game.start() }, true)
+        draw_button(size[0] - 70, 10, 60, 30, "settings") // draws visual settings button
+
     },
     show_lives: function () {
         for (let index = 0; index < this.max_lives; index++) {
@@ -294,8 +295,8 @@ document.addEventListener("DOMContentLoaded", () => {
     menu.appendChild(sp_icon)
 }, { once: true })
 
-c.addEventListener("click",()=>{
-    if (game.mx > size[0]-70 && game.mx < size[0]-10 && game.my > 10 && game.my < 40){
+c.addEventListener("click", () => {
+    if (game.mx > size[0] - 70 && game.mx < size[0] - 10 && game.my > 10 && game.my < 40) {
         open_settings()
     }
 })
@@ -303,7 +304,7 @@ c.addEventListener("click",()=>{
 
 c_picker.value = player.color
 
-function draw_button(x, y, w, h, text, effect = () => { },once) {
+function draw_button(x, y, w, h, text, effect = () => { }, once) {
     ctx.fillStyle = "#bbbbbb"
     ctx.strokeStyle = "#303030"
     ctx.beginPath();
@@ -613,7 +614,7 @@ class coin {
         this.timer = game.coin_duration + 30 - 10 * game.diffuculty
         this.check_colli = function () {
             let player_dist = Math.sqrt((player.x - this.x) ** 2 + (player.y - this.y) ** 2)
-            return player.radius + this.radius >= player_dist - 5 +game.diffuculty
+            return player.radius + this.radius >= player_dist - 5 + game.diffuculty
         }
         this.draw = function () {
             this.y += Math.sin(timer / (Math.PI * 3))
@@ -727,7 +728,7 @@ class warnings {
         this.frame = 0
         this.font = font
         this.bob_speed = bob_speed
-        this.text = "!".repeat(rng(4,0))
+        this.text = "!".repeat(rng(4, 0))
         this.get_bob = function () {
             let radian_height = this.frame * this.bob_speed * (Math.PI / 180)
             return Math.sin(radian_height) * this.bobheight
@@ -756,21 +757,21 @@ class warnings {
 function open_settings() {
     setting.style.top = 0
     game.paused = true
-    let exit = document.createElement("button")
-    exit.addEventListener("click",close_settings)
-    exit.textContent ="back to game"
-    setting.appendChild(exit)
+    // let exit = document.createElement("button")
+    // exit.addEventListener("click",close_settings)
+    // exit.textContent ="back to game"
+    // setting.appendChild(exit)
 }
 
 function close_settings() {
-    setting.style.top = "-100vh"
-     setting.textContent = ""
+   if (game.paused){setting.style.top = "-100vh"
+    //  setting.textContent = ""
     game.paused = false
     if (game.started) {
         set_c_size()
         run_frame()
     }
-
+}
 }
 function run_frame() {
     ctx.clearRect(0, 0, size[0], size[1]) // clear
@@ -917,7 +918,7 @@ function run_frame() {
         game.coin_rate = 25
         game.coin_duration = 150 + game.coin_shower_duration - game.diffuculty ** 3
     }
-    
+
     draw_button(size[0] - 70, 10, 60, 30, "settings")
 
 
@@ -929,7 +930,6 @@ function run_frame() {
     ctx.fillText("score: " + score, 0, 0);
     let cooldowndeg = 360 * player.sp_coldown / player.sp_object.cooldown
 
-    // sp_icon.style.backgroundImage = `conic-gradient(rgba(0, 0, 0, 0.6) 0deg , rgba(0, 0, 0, 0.6) ${cooldowndeg}deg , rgba(0,0,0,0) ${cooldowndeg}deg , rgba(0,0,0,0) 360deg)`
     let gradient = ctx.createConicGradient(0, game.ui.sp_icon_offset, size[1] - game.ui.sp_icon_offset)
     gradient.addColorStop(0, "rgba(0, 0, 0, 0.6)")
     gradient.addColorStop(cooldowndeg / 360, "rgba(0, 0, 0, 0.6)")
