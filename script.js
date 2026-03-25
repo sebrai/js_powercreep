@@ -764,7 +764,7 @@ function open_settings() {
 }
 
 function close_settings() {
-   if (game.paused){setting.style.top = "-100vh"
+   if (!game.is_running()){setting.style.top = "-100vh"
     //  setting.textContent = ""
     game.paused = false
     if (game.started) {
