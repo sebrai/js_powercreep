@@ -10,12 +10,9 @@ let sp_icon = null
 
 const size = [window.innerWidth * 0.85, window.innerHeight * 0.85]
 window.addEventListener("resize", () => {
-    if (!game.lost) {
-        size[0] = window.innerWidth * 0.85
-        size[1] = window.innerHeight * 0.85
-        c.width = size[0]
-        c.height = size[1]
-        // console.log("screen size changed")
+    if (game.is_running()) {
+       set_c_size()
+      
     }
 })
 let score = 0
@@ -35,6 +32,13 @@ const basic_dir = [
 function rng(max = 100, min = 0) {
     let r = Math.floor(Math.random() * (max + 1 - min)) + min
     return r
+}
+
+function set_c_size() {
+     size[0] = window.innerWidth * 0.85
+        size[1] = window.innerHeight * 0.85
+        c.width = size[0]
+        c.height = size[1]
 }
 
 c.width = size[0]
@@ -81,7 +85,7 @@ let game = {
         run_frame()
     },
     is_running: function () {
-        return this.paused || this.lost || !this.started
+        return !this.paused && !this.lost && this.started
     },
     lose: function () {
         this.lost = true
@@ -763,6 +767,7 @@ function close_settings() {
      setting.textContent = ""
     game.paused = false
     if (game.started) {
+        set_c_size()
         run_frame()
     }
 
@@ -940,7 +945,7 @@ function run_frame() {
     ctx.drawImage(sp_icon, game.ui.sp_icon_offset - 20, size[1] - game.ui.sp_icon_offset - 15, game.ui.sp_icon_size * 1.5, game.ui.sp_icon_size * 1.5)
     if (player.lives <= 0) game.lost = true
 
-    if (!game.is_running()) {
+    if (game.is_running()) {
         requestAnimationFrame(run_frame)
 
     } else if (game.lost) {
