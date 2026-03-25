@@ -8,7 +8,7 @@ const menu = document.querySelector(".cont")
 const setting = document.getElementById("settings")
 let sp_icon = null
 
-const size = [window.innerWidth * 0.85, window.innerHeight * 0.85]
+const size = [window.innerWidth, window.innerHeight]
 window.addEventListener("resize", () => {
     if (game.is_running()) {
         set_c_size()
@@ -35,8 +35,8 @@ function rng(max = 100, min = 0) {
 }
 
 function set_c_size() {
-    size[0] = window.innerWidth * 0.85
-    size[1] = window.innerHeight * 0.85
+    size[0] = window.innerWidth 
+    size[1] = window.innerHeight 
     c.width = size[0]
     c.height = size[1]
 }
