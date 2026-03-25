@@ -43,6 +43,19 @@ function set_c_size() {
 
 c.width = size[0]
 c.height = size[1]
+// localStorage.clear()
+let player_settings = localStorage.getItem("p_settings")
+if (player_settings){
+     player_settings = JSON.parse(player_settings)
+}
+else {
+    player_settings = {
+        color: "#3b66f5",
+        sp: "dash",
+        diff: 1
+    }
+    localStorage.setItem("p_settings",JSON.stringify(player_settings))
+}
 
 let game = {
     death_blocks: [],
@@ -54,7 +67,7 @@ let game = {
     paused: false,
     mx: 0,
     my: 0,
-    diffuculty: 1,
+    diffuculty: player_settings.diff,
     coin_rate: 75,
     coin_min: 50,
     coin_max: 250,
@@ -85,6 +98,7 @@ let game = {
         this.coin_shower_timer = 0
         this.started = true
         this.slow_down = 1
+        this.diffuculty = player_settings.diff
         run_frame()
     },
     is_running: function () {
@@ -147,7 +161,7 @@ let player = {
     acceleration: 2,
     maxSpeed: movement_speed,
     radius: 10,
-    color: "#3b66f5",
+    color: player_settings.color,
     lives: 3,
     invulnerability: false,
     inv_time: 0,
@@ -292,14 +306,15 @@ document.addEventListener("DOMContentLoaded", () => {
         opt.value = element.name
         opt.textContent = element.name
         sp_select.appendChild(opt)
-
+         if (player_settings.sp === element.name) opt.selected = true
     }
     sp_select.addEventListener("change", () => {
         player.sp_object = splist.filter(name => name.name === sp_select.value)[0]
         sp_icon.src = player.sp_object.icon
-
+        player_settings.sp = player.sp_object.name
+        localStorage.setItem("p_settings",JSON.stringify(player_settings))
     })
-    player.sp_object = splist.filter(name => name.name === sp_select.value)[0]
+    player.sp_object = splist.filter(name => name.name === player_settings.sp)[0]
     sp_icon = document.createElement("img")
     sp_icon.className = "tiny_icon"
     sp_icon.src = player.sp_object.icon
@@ -685,12 +700,16 @@ document.addEventListener("keyup", (e) => {
     if (!player.mkeys[e.key]) return;
     player.mkeys[e.key] = false
 })
-
+c_picker.value = player_settings.color
 c_picker.addEventListener("change", () => {
     player.color = c_picker.value
+    player_settings.color = c_picker.value
+    localStorage.setItem("p_settings",JSON.stringify(player_settings))
 })
+diff_slider.value = player_settings.diff
 diff_slider.addEventListener("change", () => {
-    game.diffuculty = Number(diff_slider.value)
+    player_settings.diff = Number(diff_slider.value)
+    localStorage.setItem("p_settings",JSON.stringify(player_settings))
 })
 c.addEventListener("mousemove", (event) => {
     let bbox = c.getBoundingClientRect()
