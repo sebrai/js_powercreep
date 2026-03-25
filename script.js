@@ -35,8 +35,8 @@ function rng(max = 100, min = 0) {
 }
 
 function set_c_size() {
-    size[0] = window.innerWidth 
-    size[1] = window.innerHeight 
+    size[0] = window.innerWidth
+    size[1] = window.innerHeight
     c.width = size[0]
     c.height = size[1]
 }
@@ -62,6 +62,8 @@ let game = {
     coin_shower_timer: 0,
     coin_shower_duration: 250,
     max_lives: 3,
+    slow_down: 1, // by how mutch the game is slowed, has to be an integer
+    slowed_time: 0,
     getspawn_rate: function () {
         let x = this.diffuculty
         return Math.floor(0.12 * x ** 3 - 0.29 * x ** 2 - 7 * x + 56)
@@ -82,6 +84,7 @@ let game = {
         this.coins = []
         this.coin_shower_timer = 0
         this.started = true
+        this.slow_down = 1
         run_frame()
     },
     is_running: function () {
@@ -271,9 +274,17 @@ const coin_shower = {
     cooldown: 1000,
     icon: "/img/coins-pile.svg"
 }
+const slow_time = {
+    func: function () {
+        game.slow_down = 2
+        game.slowed_time = 250
+    },
+    name: "slow time",
+    cooldown: 1200,
+    icon: "/img/time-trap.svg"
+}
 
-
-let splist = [dash, mouse_tp, bullet_to_mouse, dir_bullet, coin_shower]
+let splist = [dash, mouse_tp, bullet_to_mouse, dir_bullet, coin_shower, slow_time]
 document.addEventListener("DOMContentLoaded", () => {
     for (let index = 0; index < splist.length; index++) {
         const element = splist[index];
@@ -488,8 +499,10 @@ class deathblock {
             this.setmovement()
         }
         this.runframe = function () {
-            this.move()
-            this.extra_logik()
+            if (timer % game.slow_down == 0) {
+                this.move()
+                this.extra_logik()
+            }
             ctx.fillStyle = this.color
             ctx.fillRect(this.x, this.y, this.width, this.height)
             if (this.colition_check() && !player.invulnerability && !(player.dash_inv && player.dash_active)) player.get_hit()
@@ -764,14 +777,15 @@ function open_settings() {
 }
 
 function close_settings() {
-   if (!game.is_running()){setting.style.top = "-100vh"
-    //  setting.textContent = ""
-    game.paused = false
-    if (game.started) {
-        set_c_size()
-        run_frame()
+    if (!game.is_running()) {
+        setting.style.top = "-100vh"
+        //  setting.textContent = ""
+        game.paused = false
+        if (game.started) {
+            set_c_size()
+            run_frame()
+        }
     }
-}
 }
 function run_frame() {
     ctx.clearRect(0, 0, size[0], size[1]) // clear
@@ -918,7 +932,8 @@ function run_frame() {
         game.coin_rate = 25
         game.coin_duration = 150 + game.coin_shower_duration - game.diffuculty ** 3
     }
-
+    if (game.slowed_time) game.slowed_time--
+    if (!game.slowed_time) game.slow_down = 1
     draw_button(size[0] - 70, 10, 60, 30, "settings")
 
 
