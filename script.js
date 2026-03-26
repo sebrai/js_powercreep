@@ -542,7 +542,9 @@ class deathblock {
         }
         this.draw = function () {
             ctx.fillStyle = this.color
+            // ctx.strokeStyle = "#310303"
             ctx.fillRect(this.x, this.y, this.width, this.height)
+            // ctx.stroke()
         }
 
         this.check_despawn = function () {
