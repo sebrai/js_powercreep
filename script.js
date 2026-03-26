@@ -986,6 +986,8 @@ function run_frame() {
 
     } else if (game.lost) {
         game.lose()
+        game.lost = false
+        game.started = false
     }
     else if (!game.started) {
         console.log("please dont manually use run_frame, just press start")
