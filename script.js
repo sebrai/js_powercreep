@@ -684,23 +684,25 @@ class coin {
         }
     }
 }
-document.addEventListener("keydown", (e) => {
+document.addEventListener("keydown", (e) => { 
     if (e.key === " ") {
         // console.log("special used")
         player.do_special()
         return
     }
-    if (player.mkeys[e.key] == undefined || player.mkeys[e.key] == null) return;
-    if (player.mkeys[e.key]) return;
+    let lkey =  e.key.toLowerCase()
+    if (player.mkeys[lkey] == undefined || player.mkeys[lkey] == null) return;
+    if (player.mkeys[lkey]) return;
     console.log(e.key + " was pressed");
-    player.mkeys[e.key] = true
+    player.mkeys[lkey] = true
 
 
 
 })
 document.addEventListener("keyup", (e) => {
-    if (!player.mkeys[e.key]) return;
-    player.mkeys[e.key] = false
+      let lkey =  e.key.toLowerCase() || e.key
+    if (!player.mkeys[lkey]) return;
+    player.mkeys[lkey] = false
 })
 c_picker.value = player_settings.color
 c_picker.addEventListener("change", () => {
