@@ -683,10 +683,10 @@ class coin {
             game.coins.push(this)
         }
         this.runframe = function () {
-            this.timer -= 1
+            this.timer -= 1/game.slow_down
             if (this.check_colli()) {
                 this.collect()
-            } else if (this.timer === 0) {
+            } else if (this.timer <= 0) {
                 this.despawn()
             } else {
                 this.draw()
@@ -935,7 +935,7 @@ function run_frame() {
         const element = coin_copy[index];
         element.runframe()
     }
-    if (timer % game.getspawn_rate() === 0 && timer != 0) {
+    if (timer % game.getspawn_rate()*game.slow_down === 0 && timer != 0) {
         game.new_dblock(rng(game.diffuculty, 1))
     }
     if (timer % game.coin_rate === 0 && timer != 0) {
