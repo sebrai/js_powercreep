@@ -45,8 +45,8 @@ c.width = size[0]
 c.height = size[1]
 // localStorage.clear()
 let player_settings = localStorage.getItem("p_settings")
-if (player_settings){
-     player_settings = JSON.parse(player_settings)
+if (player_settings) {
+    player_settings = JSON.parse(player_settings)
 }
 else {
     player_settings = {
@@ -54,7 +54,7 @@ else {
         sp: "dash",
         diff: 1
     }
-    localStorage.setItem("p_settings",JSON.stringify(player_settings))
+    localStorage.setItem("p_settings", JSON.stringify(player_settings))
 }
 
 let game = {
@@ -294,6 +294,12 @@ const slow_time = {
     func: function () {
         game.slow_down = 2
         game.slowed_time = 250
+        for (let index = 0; index < game.death_blocks.length; index++) {
+            const element = game.death_blocks[index];
+            element.org_speed = [element.vx, element.vy]
+            element.vx /= game.slow_down
+            element.vy /= game.slow_down
+        }
     },
     name: "slow time",
     cooldown: 1200,
@@ -308,13 +314,13 @@ document.addEventListener("DOMContentLoaded", () => {
         opt.value = element.name
         opt.textContent = element.name
         sp_select.appendChild(opt)
-         if (player_settings.sp === element.name) opt.selected = true
+        if (player_settings.sp === element.name) opt.selected = true
     }
     sp_select.addEventListener("change", () => {
         player.sp_object = splist.filter(name => name.name === sp_select.value)[0]
         sp_icon.src = player.sp_object.icon
         player_settings.sp = player.sp_object.name
-        localStorage.setItem("p_settings",JSON.stringify(player_settings))
+        localStorage.setItem("p_settings", JSON.stringify(player_settings))
     })
     player.sp_object = splist.filter(name => name.name === player_settings.sp)[0]
     sp_icon = document.createElement("img")
@@ -387,6 +393,7 @@ class deathblock {
         this.y = 0
         this.vx = 0
         this.vy = 0
+        this.org_speed = [this.vx, this.vy]
         this.base_speed = speed
         this.speed = speed
         this.dir = direction
@@ -404,8 +411,9 @@ class deathblock {
             } else {
                 this.speed = this.base_speed
             }
-            this.vx = this.dir.includes("left") ? -this.speed : this.dir.includes("right") ? this.speed : 0
-            this.vy = this.dir.includes("up") ? -this.speed : this.dir.includes("down") ? this.speed : 0
+            this.vx = this.dir.includes("left") ? -this.speed / game.slow_down : this.dir.includes("right") ? this.speed / game.slow_down : 0
+            this.vy = this.dir.includes("up") ? -this.speed / game.slow_down : this.dir.includes("down") ? this.speed / game.slow_down : 0
+            this.org_speed = [this.vx * game.slow_down, this.vy * game.slow_down]
         }
         this.extra_logik = x_logik
         this.setposition = function () {
@@ -516,12 +524,9 @@ class deathblock {
             this.setmovement()
         }
         this.runframe = function () {
-            if (timer % game.slow_down == 0) {
-                this.move()
-                this.extra_logik()
-            }
-            ctx.fillStyle = this.color
-            ctx.fillRect(this.x, this.y, this.width, this.height)
+            this.move()
+            this.extra_logik()
+            this.draw()
             if (this.colition_check() && !player.invulnerability && !(player.dash_inv && player.dash_active)) player.get_hit()
 
             this.try_despawn() // despwns the enemy if its of the screen
@@ -535,6 +540,11 @@ class deathblock {
                 this.start()
             }, rng(1100, 600))
         }
+        this.draw = function () {
+            ctx.fillStyle = this.color
+            ctx.fillRect(this.x, this.y, this.width, this.height)
+        }
+
         this.check_despawn = function () {
             return this.x > size[0] + 1 || this.y > size[1] + 1 || this.y < -(this.height + 1) || this.x < -(this.width + 1)
         }
@@ -647,7 +657,7 @@ class coin {
             return player.radius + this.radius >= player_dist - 5 + game.diffuculty
         }
         this.draw = function () {
-            this.y += Math.sin(timer / (Math.PI * 3))
+            this.y += Math.sin(timer / (Math.PI * 3*game.slow_down))
             ctx.strokeStyle = "#000000"
             ctx.fillStyle = this.color
             ctx.beginPath()
@@ -684,13 +694,13 @@ class coin {
         }
     }
 }
-document.addEventListener("keydown", (e) => { 
+document.addEventListener("keydown", (e) => {
     if (e.key === " ") {
         // console.log("special used")
         player.do_special()
         return
     }
-    let lkey =  e.key.toLowerCase()
+    let lkey = e.key.toLowerCase()
     if (player.mkeys[lkey] == undefined || player.mkeys[lkey] == null) return;
     if (player.mkeys[lkey]) return;
     console.log(e.key + " was pressed");
@@ -700,7 +710,7 @@ document.addEventListener("keydown", (e) => {
 
 })
 document.addEventListener("keyup", (e) => {
-      let lkey =  e.key.toLowerCase() || e.key
+    let lkey = e.key.toLowerCase() || e.key
     if (!player.mkeys[lkey]) return;
     player.mkeys[lkey] = false
 })
@@ -708,12 +718,12 @@ c_picker.value = player_settings.color
 c_picker.addEventListener("change", () => {
     player.color = c_picker.value
     player_settings.color = c_picker.value
-    localStorage.setItem("p_settings",JSON.stringify(player_settings))
+    localStorage.setItem("p_settings", JSON.stringify(player_settings))
 })
 diff_slider.value = player_settings.diff
 diff_slider.addEventListener("change", () => {
     player_settings.diff = Number(diff_slider.value)
-    localStorage.setItem("p_settings",JSON.stringify(player_settings))
+    localStorage.setItem("p_settings", JSON.stringify(player_settings))
 })
 c.addEventListener("mousemove", (event) => {
     let bbox = c.getBoundingClientRect()
@@ -956,7 +966,13 @@ function run_frame() {
         game.coin_duration = 150 + game.coin_shower_duration - game.diffuculty ** 3
     }
     if (game.slowed_time) game.slowed_time--
-    if (!game.slowed_time) game.slow_down = 1
+    if (!game.slowed_time) {
+        game.slow_down = 1
+        for (let index = 0; index < game.death_blocks.length; index++) {
+            const element = game.death_blocks[index];
+            element.vx = element.org_speed[0], element.vy = element.org_speed[1]
+        }
+    }
     draw_button(size[0] - 70, 10, 60, 30, "settings")
 
 
