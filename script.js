@@ -77,6 +77,8 @@ let game = {
     max_lives: 3,
     slow_down: 1, // by how mutch the game is slowed, has to be an integer
     slowed_time: 0,
+    background_image: "/img/background.jpg",
+    display_back_img: false,
     getspawn_rate: function () {
         let x = this.diffuculty
         return Math.floor(0.12 * x ** 3 - 0.29 * x ** 2 - 7 * x + 56)
@@ -127,17 +129,23 @@ let game = {
         ctx.clearRect(0, 0, size[0], size[1])
         ctx.fillStyle = "#000000"
         ctx.fillRect(0, 0, size[0], size[1])
-        // let img = new Image(size[0],size[1])
-        // img.crossOrigin = "anonymous"
-        // img.src = "/img/background.jpg"
-        // img.onload = ()=>{
-        //     img.width =size[0]
-        //     img.height = size[1]
-        //     ctx.drawImage(img,0,0,size[0],size[1])
+        if (game.display_back_img) {
+            let img = new Image(size[0], size[1])
+            img.crossOrigin = "anonymous"
+            img.src = "/img/background.jpg"
+            img.onload = () => {
+                img.width = size[0]
+                img.height = size[1]
+                ctx.drawImage(img, 0, 0, size[0], size[1])
+                draw_button(size[0] / 3, size[1] / 3, 300, 120, text, () => { game.start() }, true)
+                draw_button(size[0] - 70, 10, 60, 30, "settings") // draws visual settings button
+            }
+        }
+        else {
+            draw_button(size[0] / 3, size[1] / 3, 300, 120, text, () => { game.start() }, true)
+            draw_button(size[0] - 70, 10, 60, 30, "settings") // draws visual settings button
+        }
 
-        // }
-        draw_button(size[0] / 3, size[1] / 3, 300, 120, text, () => { game.start() }, true)
-        draw_button(size[0] - 70, 10, 60, 30, "settings") // draws visual settings button
 
     },
     show_lives: function () {
@@ -662,7 +670,7 @@ class coin {
             return player.radius + this.radius >= player_dist - 5 + game.diffuculty
         }
         this.draw = function () {
-            this.y += Math.sin(timer / (Math.PI * 3*game.slow_down))
+            this.y += Math.sin(timer / (Math.PI * 3 * game.slow_down))
             ctx.strokeStyle = "#000000"
             ctx.fillStyle = this.color
             ctx.beginPath()
@@ -688,7 +696,7 @@ class coin {
             game.coins.push(this)
         }
         this.runframe = function () {
-            this.timer -= 1/game.slow_down
+            this.timer -= 1 / game.slow_down
             if (this.check_colli()) {
                 this.collect()
             } else if (this.timer <= 0) {
@@ -940,7 +948,7 @@ function run_frame() {
         const element = coin_copy[index];
         element.runframe()
     }
-    if (timer % game.getspawn_rate()*game.slow_down === 0 && timer != 0) {
+    if (timer % game.getspawn_rate() * game.slow_down === 0 && timer != 0) {
         game.new_dblock(rng(game.diffuculty, 1))
     }
     if (timer % game.coin_rate === 0 && timer != 0) {
