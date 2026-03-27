@@ -292,17 +292,20 @@ const coin_shower = {
 }
 const slow_time = {
     func: function () {
-        game.slow_down = 2
-        game.slowed_time = 250
+        let sfx = new Audio("/sfx/time slow.mp3")
+        game.slow_down = 3
+        game.slowed_time = 200
         for (let index = 0; index < game.death_blocks.length; index++) {
             const element = game.death_blocks[index];
             element.org_speed = [element.vx, element.vy]
             element.vx /= game.slow_down
             element.vy /= game.slow_down
         }
+        sfx.volume = 0.5
+        sfx.play()
     },
     name: "slow time",
-    cooldown: 1200,
+    cooldown: 800,
     icon: "/img/time-trap.svg"
 }
 
