@@ -6,7 +6,9 @@ const diff_slider = document.getElementById("difficulty")
 const ctx = c.getContext("2d")
 const menu = document.querySelector(".cont")
 const setting = document.getElementById("settings")
-let sp_icon = null
+const use_bg_img = document.getElementById("usebgimg")
+const img_upload = document.getElementById("img_upload")
+let sp_icon = document.createElement("img")
 
 const size = [window.innerWidth, window.innerHeight]
 window.addEventListener("resize", () => {
@@ -52,7 +54,9 @@ else {
     player_settings = {
         color: "#3b66f5",
         sp: "dash",
-        diff: 1
+        diff: 1,
+        b_img: false,
+        b_img_src: "/img/background.jpg"
     }
     localStorage.setItem("p_settings", JSON.stringify(player_settings))
 }
@@ -77,8 +81,8 @@ let game = {
     max_lives: 3,
     slow_down: 1, // by how mutch the game is slowed, has to be an integer
     slowed_time: 0,
-    background_image: "/img/background.jpg",
-    display_back_img: false,
+    background_image: player_settings.b_img_src,
+    display_back_img: Boolean(player_settings.b_img),
     getspawn_rate: function () {
         let x = this.diffuculty
         return Math.floor(0.12 * x ** 3 - 0.29 * x ** 2 - 7 * x + 56)
@@ -103,6 +107,7 @@ let game = {
         this.started = true
         this.slow_down = 1
         this.diffuculty = player_settings.diff
+        set_c_size()
         run_frame()
     },
     is_running: function () {
@@ -132,7 +137,7 @@ let game = {
         if (game.display_back_img) {
             let img = new Image(size[0], size[1])
             img.crossOrigin = "anonymous"
-            img.src = "/img/background.jpg"
+            img.src = game.background_image
             img.onload = () => {
                 img.width = size[0]
                 img.height = size[1]
@@ -737,6 +742,27 @@ diff_slider.value = player_settings.diff
 diff_slider.addEventListener("change", () => {
     player_settings.diff = Number(diff_slider.value)
     localStorage.setItem("p_settings", JSON.stringify(player_settings))
+})
+
+img_upload.addEventListener("change", (e) => {
+    const file = e.target.files[0]
+    if (!file) return;
+    const reader = new FileReader()
+    reader.onload = function(){
+        const string = reader.result
+        game.background_image = string
+        player_settings.b_img_src = string
+        localStorage.setItem("p_settings",JSON.stringify(player_settings))
+        
+        game.background_image = string
+    }
+    reader.readAsDataURL(file)
+})
+use_bg_img.checked =  player_settings.b_img
+use_bg_img.addEventListener("change",()=> {
+    game.display_back_img = use_bg_img.value
+    player_settings.b_img = use_bg_img.value
+    localStorage.setItem("p_settings",JSON.stringify(player_settings))
 })
 c.addEventListener("mousemove", (event) => {
     let bbox = c.getBoundingClientRect()
