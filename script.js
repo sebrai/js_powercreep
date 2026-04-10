@@ -207,6 +207,15 @@ let player = {
 
 
     },
+    draw: function () {
+        ctx.fillStyle = player.color
+        ctx.beginPath()
+        ctx.arc(player.x, player.y, player.radius, 0, 2 * Math.PI)
+        ctx.stroke()
+        ctx.fill() // paint in player
+
+        add_smile()
+    },
     get_hit: function () {
         this.lives -= 1
         if (this.lives) {
@@ -748,21 +757,22 @@ img_upload.addEventListener("change", (e) => {
     const file = e.target.files[0]
     if (!file) return;
     const reader = new FileReader()
-    reader.onload = function(){
+    reader.onload = function () {
         const string = reader.result
         game.background_image = string
         player_settings.b_img_src = string
-        localStorage.setItem("p_settings",JSON.stringify(player_settings))
-        
+        localStorage.setItem("p_settings", JSON.stringify(player_settings))
+
         game.background_image = string
     }
     reader.readAsDataURL(file)
 })
-use_bg_img.checked =  player_settings.b_img
-use_bg_img.addEventListener("change",()=> {
-    game.display_back_img = use_bg_img.value
-    player_settings.b_img = use_bg_img.value
-    localStorage.setItem("p_settings",JSON.stringify(player_settings))
+use_bg_img.checked = Boolean(player_settings.b_img)
+use_bg_img.addEventListener("change", () => {
+    game.display_back_img = use_bg_img.checked
+    player_settings.b_img = use_bg_img.checked
+    // console.log(use_bg_img.checked)
+    localStorage.setItem("p_settings", JSON.stringify(player_settings))
 })
 c.addEventListener("mousemove", (event) => {
     let bbox = c.getBoundingClientRect()
@@ -940,16 +950,7 @@ function run_frame() {
         player.y = size[1] - player.radius
     }
 
-
-
-
-    ctx.fillStyle = player.color
-    ctx.beginPath()
-    ctx.arc(player.x, player.y, player.radius, 0, 2 * Math.PI)
-    ctx.stroke()
-    ctx.fill() // paint in player
-
-    add_smile()
+    player.draw()
 
     let bullets_copy = game.bullets
     for (let index = 0; index < bullets_copy.length; index++) {

@@ -11,21 +11,25 @@
 
 <body>
     <div id="settings">
-         <div id="cont" class="cont">
-        <label for="color">player color</label>
-         <input type="color" name="color" id="color">
-        <label for="diff">difficulty</label>
-        <input type="range" name="diff" id="difficulty" step="1" max="5" min="1" value="1">
-        <input type="checkbox" name="" id="usebgimg">
-        <input type="file" name="" id="img_upload" accept="image/*">
-        <select name="" id="special_select"></select>
-        
-     
+        <div id="cont" class="cont">
+            <label for="color">player color</label>
+            <input type="color" name="color" id="color"> <br><br>
+            <label for="diff">difficulty</label>
+            <input type="range" name="diff" id="difficulty" step="1" max="5" min="1" value="1"> <br>
+            <div>
+                <input type="checkbox" name="" id="usebgimg" value="true">
+                <p>use image background</p>
+                <input type="file" name="" id="img_upload" accept="image/*">
+            </div>
+            <br>
+            <select name="" id="special_select"></select>
+
+
+        </div>
+        <h1 style="color: red;">no changes happen if game is started</h1>
+        <button onclick="close_settings()">return</button>
     </div>
-    <h1 style="color: red;">no changes happen if game is started</h1>
-    <button onclick="close_settings()">return</button>
-    </div>
-   
+
 
     <canvas style="border: solid black 2px;" width="1250px" height="600px"></canvas>
     <script src="script.js"></script>
