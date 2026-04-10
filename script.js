@@ -66,6 +66,7 @@ let game = {
     bullets: [],
     warnings: [],
     coins: [],
+    particles: [],
     started: false,
     lost: false,
     paused: false,
@@ -103,6 +104,7 @@ let game = {
         this.bullets = []
         this.warnings = []
         this.coins = []
+        this.particles = []
         this.coin_shower_timer = 0
         this.started = true
         this.slow_down = 1
@@ -649,6 +651,13 @@ class bullets {
                 this.despawn()
                 colition.item.despawn()
                 score += 50
+                let particles = 10
+                for ( let i = 0;i < particles;i++){
+                    let angle_randians = 2*Math.PI*i/particles
+                    let item = colition.item
+                    let p = new particle(4,item.x+item.width*0.5,item.y+item.height*0.5,2*Math.cos(angle_randians),2*Math.sin(angle_randians),rng(11,9),this.color);
+                    p.start()
+                }
             }
         }
         this.colition_check = function () {
@@ -718,6 +727,43 @@ class coin {
             } else {
                 this.draw()
             }
+        }
+    }
+}
+class particle {
+    constructor(r, x, y, vx, vy, timer, color) {
+        this.x = x
+        this.y = y
+        this.vx = vx
+        this.vy = vy
+        this.timer = timer
+        this.radius = r
+        this.color = color
+        this.draw = function () {
+            ctx.fillStyle = this.color
+            ctx.beginPath()
+            ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2)
+            ctx.closePath()
+            ctx.fill()
+        }
+        this.move = function () {
+            this.x += this.vx
+            this.y += this.vy
+        }
+        this.runframe = function () {
+            this.move()
+            this.draw()
+            timer--
+            if (timer <= 0) {
+                this.rm()
+            }
+        }
+        this.rm = function () {
+            const index = game.particles.indexOf(this)
+            game.particles.splice(index, 1)
+        }
+        this.start = function(){
+            game.particles.push(this)
         }
     }
 }
